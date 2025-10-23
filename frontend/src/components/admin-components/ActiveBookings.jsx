@@ -4,7 +4,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import { useContext } from "react";
-import tokenContext from "../../contexts/tokenContext";
+import tokenContext from "../../contexts/TokenContext";
 import BookingDetails from "../BookingDetails";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 

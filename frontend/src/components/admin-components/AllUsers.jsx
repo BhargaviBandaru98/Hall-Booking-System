@@ -1,7 +1,7 @@
 import "./AllUsers.css";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
-import tokenContext from "../../contexts/tokenContext";
+import tokenContext from "../../contexts/TokenContext";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 

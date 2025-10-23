@@ -1,7 +1,7 @@
 import "./AdminHallCard.css";
 import img from "../../assets/auditorium.jpg";
 import { useState, useContext } from "react";
-import tokenContext from "../../contexts/tokenContext";
+import tokenContext from "../../contexts/TokenContext";
 import axios from "axios";
 import defaultImg from '../../assets/download.jpeg';
 const BASE_URL = import.meta.env.VITE_BASE_URL;

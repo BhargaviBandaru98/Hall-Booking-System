@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../contexts/UserContext";
 // Import default tokenContext and named provider
-import tokenContext from "../contexts/tokenContext";
+import tokenContext from "../contexts/TokenContext";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
