@@ -71,6 +71,7 @@ mongoClient.connect(db_url)
     app.set("adminCollection", dbObj.collection("admin"));
     app.set("usersCollection", dbObj.collection("users"));
     app.set("hallsCollection", dbObj.collection("halls"));
+  app.set("blocksCollection", dbObj.collection("blocks"));
     app.set("bookingsCollection", dbObj.collection("bookings"));
     app.set("announcementCollections", dbObj.collection("announcements"));
     console.log("MongoDB connected successfully");

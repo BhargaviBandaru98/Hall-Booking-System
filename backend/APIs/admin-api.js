@@ -47,6 +47,45 @@ res.cookie("refreshToken", refreshToken, {
   if (process.env.NODE_ENV !== "production") responseBody.token = accessToken;
   res.send(responseBody);
 }));
+
+// Endpoint for creating admin accounts (used by frontend registration)
+adminApp.post(
+  "/create-admin",
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const adminCollection = req.app.get("adminCollection");
+      if (!adminCollection) return res.status(500).send({ message: "Admin collection not configured." });
+
+      const { name, email, phone, altPhone, manages, password } = req.body;
+      if (!name || !email || !phone || !password) {
+        return res.status(400).send({ message: "name, email, phone and password are required" });
+      }
+
+      const emailLower = (email || "").toLowerCase();
+      const existing = await adminCollection.findOne({ email: emailLower });
+      if (existing) return res.status(409).send({ message: "Admin with this email already exists" });
+
+      const hashed = await bcryptjs.hash(password, 7);
+      const adminDoc = {
+        name,
+        email: emailLower,
+        phone,
+        altPhone: altPhone || null,
+        manages: Array.isArray(manages) ? manages : (manages ? [manages] : []),
+        password: hashed,
+        userType: "admin",
+        createdAt: new Date().toISOString()
+      };
+
+      await adminCollection.insertOne(adminDoc);
+
+      return res.status(201).send({ message: "Admin registered successfully" });
+    } catch (err) {
+      console.error("Error creating admin:", err);
+      return res.status(500).send({ message: "Server error while creating admin" });
+    }
+  })
+);
 adminApp.post("/refresh-token", expressAsyncHandler(async (req, res) => {
   const { refreshToken } = req.cookies;
   if (!refreshToken) return res.status(401).send({ message: "Missing refresh token" });

@@ -184,10 +184,30 @@ userApp.get(
   })
 );
 
+// Return blocks list from blocks collection
+userApp.get(
+  "/blocks",
+  expressAsyncHandler(async (req, res) => {
+    const blocksCollection = req.app.get("blocksCollection");
+    if (!blocksCollection) return sendError(res, 500, "Blocks collection not configured.");
+    // Try two storage shapes:
+    // 1) Single document with _id: 'default_blocks' and { blocks: [...] }
+    // 2) Multiple documents, each with a `name` or use _id as block identifier
+    const defaultDoc = await blocksCollection.findOne({ _id: 'default_blocks' });
+    if (defaultDoc && Array.isArray(defaultDoc.blocks)) {
+      return res.json({ success: true, blocks: defaultDoc.blocks });
+    }
 
+    // Fallback: read all documents and map to names/_id
+    const docs = await blocksCollection.find({}).toArray();
+    const blocks = docs.map(d => d.name || d._id).filter(Boolean);
+    // Remove duplicates and sort (optional)
+    const uniqueBlocks = Array.from(new Set(blocks));
+    console.log('Fetched blocks (fallback):', uniqueBlocks);
+    return res.json({ success: true, blocks: uniqueBlocks });
+  })
+);
 
-// Returns available halls for a given date, slot and optional block
-// Query params: date, slot, block
 userApp.get(
   "/available-halls",
   expressAsyncHandler(async (req, res) => {
