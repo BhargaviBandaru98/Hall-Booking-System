@@ -69,4 +69,53 @@
     background-color: rgba(76, 76, 76, 0.154);
 }
 
+/* Cancel modal styles */
+.cancel-modal{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.cancel-modal-card{
+    background: #fff;
+    color: #111;
+    width: 520px;
+    max-width: 92%;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+.cancel-modal-card h2{
+    margin-top: 0;
+}
+.cancel-confirm{
+    background: #b33;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.cancel-confirm[disabled]{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.cancel-cancel{
+    background: #777;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.cancel-modal-card textarea{
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+    margin-top: 6px;
+}
+
 

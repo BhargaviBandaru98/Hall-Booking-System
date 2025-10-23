@@ -449,8 +449,16 @@ userApp.put(
       return sendError(res, 400, "Booking has already been canceled");
     }
 
-    // Proceed to update booking status
-    await bookingsCollection.updateOne({ bookingID }, { $set: { activeStatus: false, verifyStatus: false } });
+  // Read optional cancellation note from request body (if provided)
+  const cancellationNote = req.body?.note || null;
+
+  // Proceed to update booking status and store cancellation metadata
+  const updatePayload = { activeStatus: false, verifyStatus: false };
+  if (cancellationNote) updatePayload.cancellationNote = cancellationNote;
+  updatePayload.cancelledBy = req.user?.email || 'user';
+  updatePayload.cancellationDate = new Date().toISOString();
+
+  await bookingsCollection.updateOne({ bookingID }, { $set: updatePayload });
 
     // Fetch user's first name for personalized email (optional)
     const dbuser = await usersCollection.findOne({ email: dbBooking.bookingEmail });

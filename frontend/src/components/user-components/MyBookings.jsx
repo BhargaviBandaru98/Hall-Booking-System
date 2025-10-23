@@ -11,6 +11,9 @@ function MyBookings() {
   const [user] = useContext(userContext);
   const [bookings, setBookings] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelNote, setCancelNote] = useState("");
+  const [bookingToCancel, setBookingToCancel] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,29 +45,29 @@ function MyBookings() {
     getBookings();
   }, [user]);
 
-async function cancelBooking(bookingObj) {
-  const confirmMsg = `Are you sure you want to cancel your booking?\n\n` +
-                     `Event Name: ${bookingObj.eventName || 'N/A'}\n` +
-                     `Hall: ${bookingObj.hallname}\n` +
-                     `Slot: ${bookingObj.slot.toUpperCase()}`;
+function openCancelModal(bookingObj) {
+  setBookingToCancel(bookingObj);
+  setCancelNote("");
+  setShowCancelModal(true);
+}
 
-  if (!window.confirm(confirmMsg)) {
-    return;
-  }
-
+async function confirmCancel() {
+  if (!bookingToCancel) return;
   try {
     const res = await axios.put(
-      `${BASE_URL}/user-api/cancel-booking/${bookingObj.bookingID}`,
-      {},
+      `${BASE_URL}/user-api/cancel-booking/${bookingToCancel.bookingID}`,
+      { note: cancelNote },
       { withCredentials: true }
     );
     setBookings(prevBookings =>
       prevBookings.map(b =>
-        b.bookingID === bookingObj.bookingID
-          ? { ...b, activeStatus: false}
+        b.bookingID === bookingToCancel.bookingID
+          ? { ...b, activeStatus: false }
           : b
       )
     );
+    setShowCancelModal(false);
+    setBookingToCancel(null);
     alert(res.data.message || "Booking cancelled successfully.");
   } catch (err) {
     alert(err.response?.data?.message || "Failed to cancel booking. Please try again.");
@@ -123,9 +126,8 @@ async function cancelBooking(bookingObj) {
 
                   <td>
                     {booking.activeStatus === true &&
-                    halls.find(hall => hall.name === booking.hallname) &&
-                    booking.verifyStatus===false && booking.activeStatus===true ? (
-                      <p className="cancel" onClick={() => cancelBooking(booking)}>
+                    halls.find(hall => hall.name === booking.hallname) ? (
+                      <p className="cancel" onClick={() => openCancelModal(booking)}>
                         Cancel
                       </p>
                     ) : (
@@ -143,6 +145,23 @@ async function cancelBooking(bookingObj) {
         </table>
       </div>
       {selectedRow && <BookingDetails selectedRow={selectedRow} setSelectedRow={setSelectedRow} />}
+      {showCancelModal && (
+        <div className="cancel-modal">
+          <div className="cancel-modal-card">
+            <h2>Confirm Cancellation</h2>
+            <p>Event Name: {bookingToCancel?.eventName || 'N/A'}</p>
+            <p>Hall: {bookingToCancel?.hallname}</p>
+            <p>Slot: {bookingToCancel?.slot}</p>
+            <label>Cancellation Note: </label>
+            <textarea value={cancelNote} onChange={(e) => setCancelNote(e.target.value)} rows={4} style={{ width: '100%' }} />
+            <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button onClick={confirmCancel} className="cancel-confirm" disabled={!cancelNote.trim()}>Confirm Cancel</button>
+              <button onClick={() => setShowCancelModal(false)} className="cancel-cancel">Close</button>
+              {!cancelNote.trim() && <span style={{ color: '#900', marginLeft: 8 }}>Cancellation note is required</span>}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

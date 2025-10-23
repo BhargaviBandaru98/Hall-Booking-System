@@ -10,6 +10,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 function AllBookings() {
   const [halls, setHalls] = useState([]);
+  const [blocks, setBlocks] = useState([]);
   const [bookings, setBookings] = useState([]);
   const { setSelected, selectedDate, setSelectedDate, selectedHall, setSelectedHall } = useOutletContext();
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ function AllBookings() {
       try {
         const res = await axios.get(`${BASE_URL}/user-api/halls`, { withCredentials: true });
         setHalls(res.data.halls);
+        const uniqueBlocks = Array.from(new Set((res.data.halls || []).map(h => h.location && h.location.split(',')[0]).filter(Boolean)));
+        setBlocks(uniqueBlocks);
       } catch (error) {
         console.error("Failed to fetch halls:", error);
       }
@@ -27,10 +30,39 @@ function AllBookings() {
     getHalls();
   }, []);
 
- async function handleSelection(hallname) {
+  const [selectedBlock, setSelectedBlock] = useState("");
+  const [filterDate, setFilterDate] = useState(null);
+
+  async function handleSelection(hallname) {
   if (!hallname) return;
   try {
-    const res = await axios.get(`${BASE_URL}/user-api/hall-bookings/${hallname}`, { withCredentials: true });
+    let res;
+    // If 'All' selected, fetch all bookings or all bookings for a block
+    if (hallname === 'All') {
+      // If block selected, fetch bookings for halls in that block
+      if (selectedBlock && selectedBlock !== 'All') {
+        // find halls in block
+        const hallsInBlock = halls.filter(h => (h.location && h.location.split(',')[0]) === selectedBlock).map(h => h.name);
+        // fetch bookings for each hall and combine
+        const allBookings = [];
+        for (const hn of hallsInBlock) {
+          const r = await axios.get(`${BASE_URL}/user-api/hall-bookings/${encodeURIComponent(hn)}`, { withCredentials: true });
+          allBookings.push(...r.data.bookings);
+        }
+        res = { data: { bookings: allBookings } };
+      } else {
+        // no block filter: get all bookings via admin/user endpoint - reuse fetching all halls then all bookings
+        // fallback: fetch bookings for every hall
+        const allBookings = [];
+        for (const h of halls) {
+          const r = await axios.get(`${BASE_URL}/user-api/hall-bookings/${encodeURIComponent(h.name)}`, { withCredentials: true });
+          allBookings.push(...r.data.bookings);
+        }
+        res = { data: { bookings: allBookings } };
+      }
+    } else {
+      res = await axios.get(`${BASE_URL}/user-api/hall-bookings/${encodeURIComponent(hallname)}`, { withCredentials: true });
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -74,9 +106,8 @@ function AllBookings() {
   };
 
   function goToBookHall(date) {
-    setSelectedDate(date);
-    setSelected("bookhall");
-    navigate("/userprofile/bookhall");
+    // When a date is clicked in All Bookings, filter the bookings table to that date
+    setFilterDate(date);
   }
 
   return (
@@ -85,21 +116,40 @@ function AllBookings() {
       <div className="content">
         <div className="select-calendar">
           <div className="selecthall">
-            <select
-              id="hallname"
-              onChange={(e) => handleSelection(e.target.value)}
-              name="hallname"
-              value={selectedHall || ""}
-            >
-              <option value="" disabled>
-                --Select hall--
-              </option>
-              {halls.map((hall, idx) => (
-                <option key={idx} value={hall.name}>
-                  {hall.name}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start' }}>
+              <select id="block" value={selectedBlock} onChange={(e) => { setSelectedBlock(e.target.value); setBookings([]); setSelectedHall(null); setFilterDate(null); }}>
+                <option value="">--Select block--</option>
+                <option value="All">All</option>
+                {blocks.map((b, i) => (
+                  <option key={i} value={b}>{b}</option>
+                ))}
+              </select>
+
+              <select
+                id="hallname"
+                onChange={(e) => handleSelection(e.target.value)}
+                name="hallname"
+                value={selectedHall || ""}
+                disabled={selectedBlock === ""}
+              >
+                <option value="" disabled>
+                  --Select hall--
                 </option>
-              ))}
-            </select>
+                <option value="All">All</option>
+                {halls
+                  .filter(h => {
+                    if (!selectedBlock) return false;
+                    if (selectedBlock === 'All') return true;
+                    const block = h.location && h.location.split(',')[0];
+                    return block === selectedBlock;
+                  })
+                  .map((hall, idx) => (
+                    <option key={idx} value={hall.name}>
+                      {hall.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
           </div>
           <div className="calendar-container">
             <Calendar
@@ -115,6 +165,7 @@ function AllBookings() {
           <table>
             <thead>
               <tr>
+                <th>Club</th>
                 <th>Booking Email</th>
                 <th>Hall</th>
                 <th>Date</th>
@@ -122,20 +173,25 @@ function AllBookings() {
               </tr>
             </thead>
             <tbody>
-              {bookings.length > 0 ? (
-                bookings.map((booking, idx) => (
-                  <tr key={idx} onClick={() => setSelectedRow(booking)} className="row">
-                    <td>{booking.bookingEmail}</td>
-                    <td>{booking.hallname}</td>
-                    <td>{booking.formattedDate || booking.date}</td>
-                    <td style={{ textTransform: "uppercase" }}>{booking.slot}</td>
+              {(() => {
+                const displayed = filterDate ? bookings.filter(b => new Date(b.date).toDateString() === filterDate.toDateString()) : bookings;
+                if (displayed.length > 0) {
+                  return displayed.map((booking, idx) => (
+                    <tr key={idx} onClick={() => setSelectedRow(booking)} className="row">
+                      <td>{booking.club || 'NA'}</td>
+                      <td>{booking.bookingEmail}</td>
+                      <td>{booking.hallname}</td>
+                      <td>{booking.formattedDate || booking.date}</td>
+                      <td style={{ textTransform: "uppercase" }}>{booking.slot}</td>
+                    </tr>
+                  ));
+                }
+                return (
+                  <tr>
+                    <td colSpan="5">No bookings available</td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4">No bookings available</td>
-                </tr>
-              )}
+                );
+              })()}
             </tbody>
           </table>
         </div>
@@ -144,6 +200,12 @@ function AllBookings() {
             selectedRow={selectedRow}
             setSelectedRow={setSelectedRow}
           />
+        )}
+        {filterDate && (
+          <div style={{ marginTop: 12 }}>
+            <strong>Filtering by date:</strong> {filterDate.toDateString()} &nbsp;
+            <button onClick={() => setFilterDate(null)} style={{ padding: '6px 10px' }}>Clear filter</button>
+          </div>
         )}
       </div>
     </div>
