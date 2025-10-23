@@ -1,0 +1,72 @@
+.mybookings h1{
+    color: white; 
+    text-shadow: 0 0 50px #9954f49a;
+    text-align: center;
+    margin: 10px;
+    margin-top: 20px;
+    margin-top: 12vh;
+}
+.mybookings table, .mybookings th, .mybookings td{
+    color: white;
+    border: 1px solid rgb(86, 86, 86);
+    background-color: rgba(76, 76, 76, 0.168);
+    border-collapse: collapse;
+    padding: 15px;
+    text-align: center;
+    width: 1000px;
+    margin: auto;
+    text-transform: capitalize;
+}
+.mybookings th{
+    background-color: rgba(76, 76, 76, 0.705);
+}
+.mybookings table{
+    border-radius: 1px;
+    overflow: hidden;
+}
+.mybookings .tablecontainer::-webkit-scrollbar {
+  display: none;
+}
+.mybookings .tablecontainer{
+    width: 95%;
+    max-width: 1020px;
+    border: 1px solid rgba(86, 86, 86, 0.466);
+    border-radius: 16px;
+    background-color: #1a1a1a86;
+    padding: 10px;
+    margin: auto;
+    margin-top: 20px;
+    overflow: scroll;
+}
+.mybookings table .cancel{
+    cursor: pointer;
+    padding: 2px;
+    width: 70px;
+    margin: auto;
+    border-radius: 10px;
+    background-color: rgba(148, 51, 51, 0.866);
+    border: 2px solid rgba(66, 11, 11, 0.613);
+    color: rgb(255, 255, 255);
+}
+.mybookings table .cancel:hover{
+    background-color: rgba(150, 78, 78, 0.866);
+    border: 2px solid rgba(74, 31, 31, 0.613);
+    color: rgb(255, 247, 247);
+}
+.mybookings table .pending{
+    color: yellow;
+}
+.mybookings table .approved{
+    color: green;
+}
+.mybookings table .blocked{
+    color: rgb(255, 75, 75);
+}
+.mybookings table .row{
+    cursor: pointer;
+}
+.mybookings table .row:hover{
+    background-color: rgba(76, 76, 76, 0.154);
+}
+
+

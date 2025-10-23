@@ -1,0 +1,196 @@
+.halls{
+    margin-top: 12vh;
+    margin-bottom: 20px;
+}
+.halls h1{
+    text-align: center;
+    color: white;
+    margin-top: 20px;
+    text-shadow: 0 0 50px #9954f49a;
+}
+.halls .cards{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; 
+    gap: 1rem;              
+}
+.halls .closepopup{
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    z-index: 101;
+}
+.halls .popupbackground{
+    position: fixed;
+    max-width: 550px;
+    max-height: 600px;
+    width: 90%;
+    height: 90%;
+    background-color: rgba(102, 102, 102, 0.318);
+    border-radius: 20px;
+    left: 50%; 
+    top: 50%; 
+    transform: translate(-50%, -50%);
+    z-index: 101;
+}
+.halls .popupcard{
+    position: fixed;
+    max-width: 520px;
+    max-height: 570px;
+    width: 95%;
+    height: 95%;
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    left: 50%; 
+    top: 50%; 
+    transform: translate(-50%, -50%);
+    z-index: 102;
+    overflow: scroll;
+}
+.halls .popupcard form{
+    padding: 20px;
+}   
+.halls .popupcard form .hallname-delete{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}   
+.halls .popupcard form .hallname-delete .delete{
+    color: red;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0px;
+}  
+.halls .popupcard form label{
+    font-weight: 600;
+    font-size: 16px;
+}   
+.halls .popupcard form input{
+    font-size: 16px;
+    padding: 3px;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 20px;
+}   
+.halls .popupcard form textarea{
+    width: 100%;
+    height: 140px;
+    margin-top: 5px;
+    resize: none;
+    font-size: 16px;
+    padding: 5px;
+}   
+.halls .popupcard form input[type="file"]{
+    width: 300px;
+    margin-left: 10px;
+}   
+.halls .popupcard form .buttons{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 20px;
+}
+.halls .popupcard form .buttons .edit{
+    cursor: pointer;
+    color: rgb(226, 255, 228);
+    background-color: rgba(56, 119, 75, 0.928);
+    border: 1.5px solid rgba(42, 88, 56, 0.928);
+    padding: 7px;
+    border-radius: 10px;
+    width: 87px;
+    font-size: 14px;
+    text-align: center;
+}
+.halls .popupcard form .buttons .edit:hover{
+    background-color: rgba(56, 119, 75, 0.774);
+    border: 1.5px solid rgba(42, 88, 56, 0.757);
+}
+.halls .popupcard form .buttons .close{
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.949);
+    background-color: rgba(240, 70, 70, 0.918);
+    border: 1.5px solid rgba(203, 41, 41, 0.969);
+    padding: 7px;
+    border-radius: 10px;
+    width: 87px;
+    font-size: 14px;
+    margin-top: 0px;
+    text-align: center;
+}
+.halls .popupcard form .buttons .close:hover{
+    background-color: rgba(240, 70, 70, 0.726); 
+    border: 1.5px solid rgba(203, 41, 41, 0.438);
+}
+.halls .popupcard form p{
+    color: red;
+    text-transform: capitalize;
+}
+
+.halls .addhallcard{
+    border: 1px solid rgba(86, 86, 86, 0.466);
+    border-radius: 20px;
+    width: 350px;
+    height: 400px;
+    margin: auto;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #1a1a1a86;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: rgba(104, 104, 104, 0.15) 0px 5px 15px;
+}
+.halls .addhallcard:hover{
+    transform: scale(1.003);
+    transition: 0.1s;
+    box-shadow: rgba(102, 95, 104, 0.25) 0px 5px 15px;
+}
+.halls .addhallcard .details{
+    height: 100%;
+    background-color: rgba(76, 76, 76, 0.705);
+    border-radius: 10px;
+    padding: 10px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: flex-start;
+}
+.halls .addhallcard .circle{
+    background-color: rgba(26, 26, 26, 0.205);
+    border-radius: 50%;  
+    width: 200px;
+    height: 200px;
+    margin: auto;
+    position: relative;
+}
+.halls .addhallcard .bar{
+    background-color: rgba(128, 128, 128, 0.32);
+    width: 150px; 
+    height: 150px; 
+    text-align: center;
+    margin: auto;
+}
+.halls .addhallcard .bar1{
+    width: 150px; 
+    height: 20px; 
+    position: absolute;
+    top: 90px;
+    left: 25px;
+}
+.halls .addhallcard .bar2{
+    width: 20px; 
+    height: 65px; 
+    position: absolute;
+    top: 25px;
+    left: 90px;
+}
+.halls .addhallcard .bar3{
+    width: 20px; 
+    height: 65px; 
+    position: absolute;
+    top: 110px;
+    left: 90px;
+}

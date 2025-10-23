@@ -1,0 +1,58 @@
+.hallcard{
+    border: 1px solid rgba(86, 86, 86, 0.466);
+    border-radius: 20px;
+    width: 350px;
+    height: 400px;
+    margin: auto;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #1a1a1a86;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: rgba(104, 104, 104, 0.15) 0px 5px 15px;
+}
+.hallcard:hover{
+    transform: scale(1.003);
+    transition: 0.1s;
+    box-shadow: rgba(102, 95, 104, 0.25) 0px 5px 15px;
+}
+.hallcard .details{
+    height: 100%;
+    background-color: rgba(76, 76, 76, 0.705);
+    border-radius: 10px;
+    padding: 10px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: flex-start;
+}
+.hallcard .details img{
+    width: 300px;
+    height: 173.52px;
+    border-radius: 5px;
+}
+.hallcard .details .details1 p{
+    text-transform: capitalize;
+    font-size: 18px;
+    text-shadow: 0 0 2px black;
+}
+.hallcard .details .details2{
+    width: 100%;
+    text-shadow: 0 0 1.7px black;
+}
+.hallcard .viewmore{
+    background-color: rgba(93, 93, 93, 0.216);
+    border: 1.5px solid rgba(117, 117, 117, 0.397);
+    padding: 7px;
+    border-radius: 10px;
+    width: 87px;
+    font-size: 14px;
+    text-align: center;
+    margin: auto;
+}
+.hallcard .viewmore:hover{
+    background-color: rgba(110, 110, 110, 0.572);
+    border: 1.5px solid rgba(156, 156, 156, 0.397);
+}

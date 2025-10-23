@@ -1,0 +1,85 @@
+.bookingdetails .closepopup{
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 101;
+}
+.bookingdetails .popupbackground{
+    position: fixed;
+    max-width: 550px;
+    max-height: 600px;
+    width: 90%;
+    height: 90%;
+    background-color: rgba(102, 102, 102, 0.318);
+    border-radius: 20px;
+    left: 50%; 
+    top: 50%; 
+    transform: translate(-50%, -50%);
+    z-index: 101;
+}
+.bookingdetails .popupcard{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 18px;
+    position: fixed;
+    max-width: 520px;
+    max-height: 570px;
+    width: 95%;
+    height: 95%;
+    background-color: white;
+    border-radius: 10px;
+    left: 50%; 
+    top: 50%; 
+    transform: translate(-50%, -50%);
+    z-index: 102;
+    overflow-y: scroll;
+    padding-left: 15px;
+}
+.bookingdetails .popupcard h1{
+    text-transform: capitalize;
+    color: black;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: none;
+}
+.bookingdetails .popupcard p{
+    margin: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.bookingdetails .popupcard img{
+    width: 330px;
+    height: 200px;
+    margin: auto;
+    display: block;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+.bookingdetails .buttons{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 35px;
+}
+.bookingdetails .buttons .close{
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.949);
+    background-color: rgba(240, 70, 70, 0.918);
+    border: 1.5px solid rgba(203, 41, 41, 0.969);
+    padding: 7px;
+    border-radius: 10px;
+    width: 87px;
+    font-size: 14px;
+    text-align: center;
+}
+.bookingdetails .buttons .close:hover{
+    background-color: rgba(240, 70, 70, 0.726);
+    border: 1.5px solid rgba(203, 41, 41, 0.438);
+}
+.popupcard::-webkit-scrollbar {
+  display: none;
+}

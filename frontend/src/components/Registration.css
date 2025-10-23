@@ -1,0 +1,72 @@
+.registration{
+    padding-top: 30px;
+    padding-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6vh;
+}
+.registration h1{
+    text-transform: uppercase;
+    color: white; 
+    font-size: 40px; 
+    margin-bottom: 20px;
+    text-shadow: 0 0 50px #9954f49a;
+}
+.registration form{
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    max-width: 400px;
+    margin: auto;
+    background-color: rgba(47, 47, 51, 0.836);
+    padding: 30px;
+    border-radius: 30px;
+    box-shadow: rgba(202, 202, 202, 0.24) 0px 3px 8px;
+}
+.registration form label{
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+.registration form input{
+    padding: 10px;
+    color: white;
+    margin-bottom: 20px;
+    font-size: 16px;
+    background-color: rgba(128, 128, 128, 0.37);
+    border: 2px solid rgba(128, 128, 128, 0.202);
+    border-radius: 6px;
+}
+.registration form input:focus{
+    border: 2px solid #370d6d90;
+    outline: none;
+}
+.registration form button{
+    width: 100px;
+    padding: 10px;
+    font-size: 16px;
+    margin: auto;
+    color: white;
+    background-color: rgba(128, 128, 128, 0.37);
+    border: 2px solid rgba(128, 128, 128, 0.202);
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+}
+.registration form button:hover{
+    background-color: rgba(89, 89, 89, 0.37);
+    border: 2px solid rgba(128, 128, 128, 0.202);
+    border-radius: 10px;
+    cursor: pointer;
+}
+.registration form p{
+    margin-bottom: 20px;
+    color: rgba(225, 59, 59, 0.993);
+    text-transform: capitalize;
+}
+.registration form .para{
+    margin: 20px 0;
+}

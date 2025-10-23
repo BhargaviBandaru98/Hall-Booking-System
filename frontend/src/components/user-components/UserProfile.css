@@ -1,0 +1,46 @@
+.userprofile .userheader{
+    background: radial-gradient(circle at 30% 30%, #00ffff06, transparent 50%),
+              radial-gradient(circle at 80% 80%, #ff00ff06, transparent 50%),
+              radial-gradient(circle at 100% 100%, #ff00ff06, transparent 50%),
+              radial-gradient(circle at 60% 100%, #ffff0006, transparent 50%),
+              radial-gradient(circle at 90% 90%, #00ffff06, transparent 50%);
+    position: fixed;
+    padding: 10px;
+    width: 100%;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.158);
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.178);
+    background-color:rgba(1, 2, 22, 0.95);
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+    z-index: 100;
+    top: 66px;
+}
+.userprofile .userheader ul{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style-type: none;
+}
+.userprofile .userheader ul .selected{
+    text-decoration: none;
+    font-weight: 600;
+    color: #b277ff;
+}
+.userprofile .userheader ul .selected:hover{
+    text-shadow: 0 0 20px #9954f492;
+}
+.userprofile .userheader ul .notSelected{
+    text-decoration: none;
+    color: white;
+}
+.userprofile .userheader ul .notSelected:hover{
+    text-shadow: 0 0 20px #ffffffd0;
+}
+.userprofile .content{
+    padding-top: 39.5px;
+}
+@media screen and (max-width: 800px){
+    .userprofile .userheader{
+        top: 53px;
+        padding: 10px 5px;
+    }
+}

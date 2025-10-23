@@ -1,0 +1,74 @@
+.allusers{
+    margin-top:12vh;
+}
+.allusers h1{
+    margin-top: 20px;
+    color: white; 
+    text-shadow: 0 0 50px #9954f49a;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.allusers table, .allusers th, .allusers td{
+    color: white;
+    border: 1px solid rgb(86, 86, 86);
+    background-color: rgba(76, 76, 76, 0.168);
+    border-collapse: collapse;
+    padding: 15px;
+    text-align: center;
+    width: 1000px;
+}
+.allusers th{
+    background-color: rgba(76, 76, 76, 0.705);
+}
+.allusers table{
+    border-radius: 1px;
+    overflow: hidden;
+}
+.allusers .tablecontainer{
+    width: 95%;
+    max-width: 1020px;
+    border: 1px solid rgba(86, 86, 86, 0.466);
+    border-radius: 16px;
+    background-color: #1a1a1a86;
+    padding: 10px;
+    margin: auto;
+    overflow: scroll;
+}
+.allusers table .block{
+    background-color: rgb(255, 238, 238);
+    border: 2px solid rgba(167, 35, 35, 0.938);
+    padding: auto;
+    padding-top: 2px;
+    color: rgba(167, 35, 35, 0.938);
+    width: 30px;
+    height: 30px;
+    margin: auto;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+.allusers table .block:hover{
+    background-color: rgba(150, 78, 78, 0.866);
+    border: 2px solid rgba(74, 31, 31, 0.613);
+    color: rgb(255, 247, 247);
+}
+.allusers table .blockedRow{
+    background-color: rgba(21, 21, 21, 0);
+}
+.allusers table .blockedRow td{
+    background-color: rgba(0, 0, 0, 0.151);
+    color: rgba(255, 255, 255, 0.151);
+}
+.allusers table .blockedRow .block{
+    background-color: rgba(148, 51, 51, 0.866);
+    border: 2px solid rgba(66, 11, 11, 0.613);
+    color: rgb(255, 247, 247);
+}
+.allusers table .blockedRow .block:hover{
+    background-color: rgba(150, 78, 78, 0.866);
+    border: 2px solid rgba(74, 31, 31, 0.613);
+    color: rgb(255, 247, 247);
+}
+.allusers .tablecontainer::-webkit-scrollbar {
+  display: none;
+}

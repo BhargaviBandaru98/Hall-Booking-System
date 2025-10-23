@@ -1,0 +1,126 @@
+.announcement-container {
+  position: relative;
+  width: 900px;
+  max-width: 90vw;
+  margin: auto;
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  padding: 5px;
+}
+
+.details {
+  padding: 1rem;
+}
+
+.announcement-message {
+  text-align: justify;
+}
+
+.announcement-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Announcement icon image */
+.announcement-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Heading to show on small screens instead of image */
+.announcement-heading {
+  display: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #9954f4;
+  margin: 0;
+  align-self: center;
+  user-select: none;
+}
+
+.announcement-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.date-overlay {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  text-align: right;
+}
+
+#no-announce {
+  font-style: italic;
+  color: #999;
+  padding: 1rem;
+  text-align: center;
+}
+
+/* Slide animation for CSSTransition */
+.slide-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.slide-enter-active {
+  opacity: 1;
+  transform: translateX(0%);
+  transition: opacity 1000ms ease-in-out, transform 1000ms ease-in-out;
+}
+
+.slide-exit {
+  opacity: 1;
+  transform: translateX(0%);
+}
+
+.slide-exit-active {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: opacity 1000ms ease-in-out, transform 1000ms ease-in-out;
+}
+
+/* Responsive styles */
+@media (max-width: 480px) {
+  .announcement-container {
+    width: 95vw;
+    padding: 8px;
+  }
+
+  .announcement-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .announcement-icon {
+    display: none !important;
+  }
+
+  .announcement-heading {
+    display: block !important;
+  }
+
+  .announcement-title {
+    font-size: 1rem;
+    text-align: center;
+  }
+  .announcement-message{
+    display: block;
+  }
+
+  .date-overlay {
+    font-size: 0.75rem;
+    text-align: left;
+  }
+}

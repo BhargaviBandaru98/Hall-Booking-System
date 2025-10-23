@@ -1,0 +1,73 @@
+.verifyusers h1{
+    margin-top: 20px;
+    color: white; 
+    text-shadow: 0 0 50px #9954f49a;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.verifyusers{
+    margin-top: 12vh;
+}
+.verifyusers table, .verifyusers th, .verifyusers td{
+    color: white;
+    border: 1px solid rgb(86, 86, 86);
+    background-color: rgba(76, 76, 76, 0.168);
+    border-collapse: collapse;
+    padding: 15px;
+    text-align: center;
+    width: 1000px;
+}
+.verifyusers th{
+    background-color: rgba(76, 76, 76, 0.705);
+}
+.verifyusers table{
+    border-radius: 1px;
+    overflow: hidden;
+}
+.verifyusers .tablecontainer{
+    width: 95%;
+    max-width: 1020px;
+    border: 1px solid rgba(86, 86, 86, 0.466);
+    border-radius: 16px;
+    background-color: #1a1a1a86;
+    padding: 10px;
+    margin: auto;
+    overflow: scroll;
+}
+.verifyusers table .verify{
+    background-color: rgba(64, 107, 67, 0.805);
+    border: 2px solid rgba(44, 64, 45, 0.805);
+    padding: auto;
+    padding-top: 2px;
+    color: white;
+    width: 30px;
+    height: 30px;
+    margin: auto;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+.verifyusers table .verify:hover{
+    background-color: rgba(84, 113, 86, 0.805);
+    border: 2px solid rgba(53, 68, 54, 0.805);
+}
+.verifyusers table .reject{
+    background-color: rgba(118, 60, 60, 0.812);
+    border: 2px solid rgba(77, 45, 45, 0.938);
+    padding: auto;
+    padding-top: 5px;
+    color: white;
+    width: 30px;
+    height: 30px;
+    margin: auto;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+.verifyusers table .reject:hover{
+    background-color: rgba(126, 81, 81, 0.812);
+    border: 2px solid rgba(79, 57, 57, 0.938);
+}
+.verifyusers .tablecontainer::-webkit-scrollbar {
+  display: none;
+}

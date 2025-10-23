@@ -1,0 +1,120 @@
+.header1, .header2{
+    background: radial-gradient(circle at 30% 30%, #00ffff06, transparent 50%),
+              radial-gradient(circle at 80% 80%, #ff00ff06, transparent 50%),
+              radial-gradient(circle at 100% 100%, #ff00ff06, transparent 50%),
+              radial-gradient(circle at 60% 100%, #ffff0006, transparent 50%),
+              radial-gradient(circle at 90% 90%, #00ffff06, transparent 50%);
+    position: fixed;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 100px;
+    background-color:rgba(1, 2, 22, 0.95);
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+    z-index: 100;
+}
+.header1 .websiteName{
+    font-size: 32px;
+    color: #9954f4; 
+    text-shadow: 0 0 2px #a86ef3; 
+    cursor: pointer;
+}
+.header1 ul{
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 100px;
+    color: white;
+}
+.header1 ul li{
+    cursor: pointer;
+}
+.header1 .selected{
+    font-weight: 600;
+    color: #b277ff;
+    text-decoration: none;
+}
+.header1 .selected:hover{
+    color: #c394ff;
+    text-shadow: 0 0 20px #9954f492;
+}
+.header1 .notSelected{
+    color: white;
+    text-decoration: none;
+}
+.header1 .notSelected:hover{
+    color: white;
+    text-decoration: none;
+    text-shadow: 0 0 20px #ffffffd0;
+}
+.header2 .websiteName{
+    font-size: 32px;
+    color: #9954f4; 
+    text-shadow: 0 0 2px #a86ef3; 
+    cursor: pointer;
+}
+.header2 .user{
+    color: white;
+    font-size: 19px;
+    text-transform: capitalize;
+    text-align: center;
+    min-width: 250px;
+}
+.header2 .logout{
+    color: white;
+    font-size: 16px;
+    border: 1px solid white;
+    padding: 5px;
+    border-radius: 6px;
+    margin-left: 91px;
+    width: 70.33px;
+    text-align: center;
+    cursor: pointer;
+}
+.header2 .logout:hover{
+    color: #c394ff;
+    border: 1px solid #c394ff;
+    background-color: #9954f408;
+}
+@media screen and (max-width: 800px){
+    .header1 .websiteName{
+        font-size: 32px;
+        align-self: flex-start;
+    }
+    .header1{
+        padding: 8px;
+        flex-direction: column;
+    }
+    .header1 ul{
+        user-select: none;
+        background: radial-gradient(circle at 30% 30%, #00ffff06, transparent 50%),
+                radial-gradient(circle at 80% 80%, #ff00ff06, transparent 50%),
+                radial-gradient(circle at 100% 100%, #ff00ff06, transparent 50%),
+                radial-gradient(circle at 60% 100%, #ffff0006, transparent 50%),
+                radial-gradient(circle at 90% 90%, #00ffff06, transparent 50%);
+        position: fixed;
+        padding: 10px;
+        width: 100%;
+        border-top: 0.5px solid rgba(255, 255, 255, 0.158);
+        border-bottom: 0.5px solid rgba(255, 255, 255, 0.178);
+        background-color:rgba(1, 2, 22, 0.95);
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+        z-index: 100;
+        top: 53px;
+        gap: 90px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .header2{
+        padding: 8px 10px;
+    }
+    .header2 .user{
+        display: none;
+    }
+    .header2 .logout{
+        margin-left: 0px;
+    }
+}

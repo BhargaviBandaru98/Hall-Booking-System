@@ -1,0 +1,152 @@
+.bookhall{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    margin-top: 12vh;
+}
+.bookhall h1{
+    margin-top: 20px;
+    color: white; 
+    margin-bottom: 20px;
+    text-shadow: 0 0 50px #9954f49a;
+}
+.bookhall form{
+    display: flex;
+    flex-direction: row;
+    height: 470px;  
+}
+.bookhall .content{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 400px;   
+    margin: auto;
+    background-color: rgba(47, 47, 51, 0.836);
+    padding: 30px;
+    border-radius: 30px;
+    box-shadow: rgba(202, 202, 202, 0.24) 0px 3px 8px;
+    margin-bottom: 10px;
+}
+.bookhall .content1{
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+}
+.bookhall .content2{
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+}
+.bookhall .slot{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+.bookhall .slot .radio{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bookhall .slot label{
+    margin: 0;
+}
+.bookhall .slot input{
+    margin: 0;
+    margin-right: 7px;
+    appearance: none;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    padding: 0;
+}
+.bookhall .slot input:checked{
+    background-color: #370d6d90;
+    border: 2px solid #4e3272b1;
+}
+.bookhall form label{
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+.bookhall form input, .bookhall form textarea, .bookhall form select{
+    padding: 10px;
+    color: white;
+    margin-bottom: 20px;
+    font-size: 16px;
+    background-color: rgba(128, 128, 128, 0.37);
+    border: 2px solid rgba(128, 128, 128, 0.202);
+    border-radius: 6px;
+}
+.bookhall form textarea{
+    height: 150px;
+    resize: none;
+}
+.bookhall form select option{
+    color: black;
+    background-color: white;
+}
+.bookhall form input:focus, .bookhall form textarea:focus , .bookhall form select:focus{
+    border: 2px solid #370d6d90;
+    outline: none;
+}
+.bookhall form input[type="file"]{
+    all: unset;
+    color: white;
+    width: 225px;
+    margin-left: 10px;
+}
+.bookhall form button{
+    width: 130px    ;
+    padding: 10px;
+    font-size: 16px;
+    margin: auto;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    color: white;
+    background-color: rgba(128, 128, 128, 0.37);
+    border: 2px solid rgba(128, 128, 128, 0.202);
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+}
+.bookhall form button:hover{
+    background-color: rgba(89, 89, 89, 0.37);
+    border: 2px solid rgba(128, 128, 128, 0.202);
+    border-radius: 10px;
+    cursor: pointer;
+}
+.bookhall form p{
+    margin-bottom: 20px;
+    color: rgba(225, 59, 59, 0.993);
+    text-transform: capitalize;
+}
+.bookhall form .para{
+    margin: 20px 0;
+}
+@media screen and (max-width: 800px){
+    .bookhall form{
+        flex-direction: column;
+        align-items: center;
+        height: 1030px;
+        width: 95%;
+    }
+    .bookhall .content{
+        margin-bottom: 0px;
+        width: 100%;
+        padding: 30px 15px;
+        max-width: 470px;
+    }
+    .bookhall .content1{
+        border-top-right-radius: 30px;
+        border-bottom-left-radius: 0px;
+        margin: 0;
+    }
+    .bookhall .content2{
+        border-top-right-radius: 0px;
+        border-bottom-left-radius: 30px;
+        margin: 0;
+    }
+}

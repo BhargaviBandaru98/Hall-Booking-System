@@ -1,0 +1,281 @@
+.activebookings h1{
+    margin-top: 20px;
+    color: white; 
+    text-shadow: 0 0 50px #9954f49a;
+    text-align: center;
+}
+.activebookings{
+    margin-top: 12vh;
+}
+.activebookings .selecthall select{
+    width: 300px;
+    text-align: center;
+    margin: auto;
+    display: block;
+    padding: 10px;
+    color: white;
+    margin-bottom: 20px;
+    font-size: 16px;
+    background-color: rgba(54, 54, 54, 0.62);
+    border: 2px solid rgba(128, 128, 128, 0.202);
+    border-radius: 6px;
+}
+.activebookings .selecthall select option{
+    color: black;
+    background-color: white;
+}
+.activebookings .content{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 20px;
+}
+.activebookings table, .activebookings th, .activebookings td{
+    color: white;
+    border: 1px solid rgb(86, 86, 86);
+    background-color: rgba(76, 76, 76, 0.168);
+    border-collapse: collapse;
+    padding: 15px;
+    text-align: center;
+    width: 680px;
+}
+.activebookings th{
+    background-color: rgba(76, 76, 76, 0.705);
+}
+.activebookings table{
+    border-radius: 1px;
+    overflow: hidden;
+}
+.activebookings .tablecontainer::-webkit-scrollbar {
+  display: none;
+}
+.activebookings .tablecontainer{
+    width: 95%;
+    max-width: 700px;
+    border: 1px solid rgba(86, 86, 86, 0.466);
+    border-radius: 16px;
+    background-color: #1a1a1a86;
+    padding: 10px;
+    overflow: auto;
+}
+.activebookings table .block{
+    background-color: rgb(255, 238, 238);
+    border: 2px solid rgba(167, 35, 35, 0.938);
+    padding: auto;
+    padding-top: 2px;
+    color: rgba(167, 35, 35, 0.938);
+    width: 30px;
+    height: 30px;
+    margin: auto;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+.activebookings table .block:hover{
+    background-color: rgba(150, 78, 78, 0.866);
+    border: 2px solid rgba(74, 31, 31, 0.613);
+    color: rgb(255, 247, 247);
+}
+.activebookings table .blockedRow{
+    background-color: rgba(21, 21, 21, 0);
+}
+.activebookings table .blockedRow td{
+    background-color: rgba(0, 0, 0, 0.151);
+    color: rgba(255, 255, 255, 0.151);
+}
+.activebookings table .blockedRow .block{
+    background-color: rgba(148, 51, 51, 0.866);
+    border: 2px solid rgba(66, 11, 11, 0.613);
+    color: rgb(255, 247, 247);
+}
+.activebookings table .blockedRow .block:hover{
+    background-color: rgba(150, 78, 78, 0.866);
+    border: 2px solid rgba(74, 31, 31, 0.613);
+    color: rgb(255, 247, 247);
+}
+.activebookings table .row{
+    cursor: pointer;
+}
+.activebookings table .row:hover{
+    background-color: rgba(76, 76, 76, 0.154);
+}
+
+.activebookings .closepopup{
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 101;
+}
+.activebookings .popupbackground{
+    position: fixed;
+    max-width: 550px;
+    max-height: 600px;
+    width: 90%;
+    height: 90%;
+    background-color: rgba(102, 102, 102, 0.318);
+    border-radius: 20px;
+    left: 50%; 
+    top: 50%; 
+    transform: translate(-50%, -50%);
+    z-index: 101;
+}
+.activebookings .popupcard{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 18px;
+    position: fixed;
+    max-width: 520px;
+    max-height: 570px;
+    width: 95%;
+    height: 95%;
+    background-color: white;
+    border-radius: 10px;
+    left: 50%; 
+    top: 50%; 
+    transform: translate(-50%, -50%);
+    z-index: 102;
+}
+.activebookings .popupcard h1{
+    text-transform: capitalize;
+    color: black;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: none;
+}
+.activebookings .popupcard p{
+    margin: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.activebookings .popupcard img{
+    width: 330px;
+    height: 200px;
+    margin: auto;
+    display: block;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+.activebookings .buttons{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 35px;
+}
+.activebookings .buttons .close{
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.949);
+    background-color: rgba(240, 70, 70, 0.918);
+    border: 1.5px solid rgba(203, 41, 41, 0.969);
+    padding: 7px;
+    border-radius: 10px;
+    width: 87px;
+    font-size: 14px;
+    text-align: center;
+}
+.activebookings .buttons .close:hover{
+    background-color: rgba(240, 70, 70, 0.726);
+    border: 1.5px solid rgba(203, 41, 41, 0.438);
+}
+
+
+.react-calendar {
+    width: 95%!important;        
+    max-width: 450px !important; 
+    margin: 20px auto !important;
+    border: 1px solid #333333 !important; 
+    border-radius: 10px !important;
+    padding: 10px !important;
+    font-family: Arial, sans-serif !important;
+    background-color: #1a1a1a86 !important; 
+    color: #e0e0e0 !important; 
+}
+.react-calendar__tile {
+    position: relative !important;
+    text-align: center !important;
+    padding: 15px !important;
+    font-size: 14px !important;
+    background-color: #333 !important; 
+    color: #e0e0e0 !important; 
+    border: 0.1px solid rgb(32, 32, 32) !important;
+}
+.semicircle {
+    position: absolute !important;
+    text-align: right !important;
+    padding-right: 3px !important;
+    width: 100% !important;
+    height: 50% !important;
+    font-size: 8px !important;
+    font-weight: 600 !important;
+}
+.semicircle.fn {
+    background-color: rgba(116, 0, 189, 0.4) !important; 
+    color: rgba(184, 150, 255, 0.9) !important;
+    border-top-right-radius: 4px !important;
+    border-top-left-radius: 4px !important;
+    top: 0px !important;
+    left: 0 !important;
+}
+.semicircle.an {
+    background-color: rgba(255, 0, 0, 0.4) !important; 
+    color: rgba(255, 146, 146, 0.9) !important; 
+    border-bottom-right-radius: 4px !important;
+    border-bottom-left-radius: 4px !important;
+    left: 0 !important;
+    bottom: 0 !important;
+}
+.react-calendar__navigation__next2-button, 
+.react-calendar__navigation__prev2-button {
+    display: none !important;
+}
+.react-calendar__tile {
+    box-shadow: none !important;
+}
+.react-calendar__tile:disabled {
+    background: rgba(46, 46, 46, 0.7) !important; 
+    color: #666666 !important;
+}
+.react-calendar__tile:disabled:hover {
+    background: rgba(47, 47, 47, 0.7) !important; 
+}
+.react-calendar__tile--now {
+    background: rgba(255, 255, 52, 0.188) !important; 
+    color: #1a1a1a !important; 
+    border-radius: 4px !important;
+}
+.react-calendar__tile--active {
+    background: rgba(79, 79, 79, 0.7) !important; 
+    box-shadow: none !important;
+    color: #fff !important; 
+}
+.react-calendar__navigation button {
+    background: #444 !important; 
+    color: #e0e0e0 !important; 
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 5px 10px !important;
+    margin: 2px !important;
+}
+.react-calendar__navigation button:disabled {
+    background: #333 !important; 
+    color: #666 !important;
+}
+.react-calendar__tile:hover {
+    background-color: rgba(100, 100, 100, 0.5) !important; 
+    cursor: pointer !important;
+}
+
+@media screen and (max-width: 800px){
+    .activebookings .content{
+        padding: 20px 0px;
+    }
+    .react-calendar {
+        max-width: 350px !important; 
+    }
+}
