@@ -10,7 +10,8 @@ const cors = require("cors");
 const corsOptions = {
   origin: [
     'https://vnr-campus-halls-booking.onrender.com',
-    'http://localhost:5173'
+    'http://localhost:5173',
+    'https://hall-booking-system-kappa.vercel.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
@@ -41,7 +42,8 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL,
+    // Allow configured FRONTEND_URL (if set) plus Vercel deployment origin
+    origin: [process.env.FRONTEND_URL, 'https://hall-booking-system-kappa.vercel.app'].filter(Boolean),
     methods: ["GET", "POST"],
     credentials: true
   }
