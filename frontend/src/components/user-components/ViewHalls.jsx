@@ -50,8 +50,17 @@ function ViewHalls() {
 
            <h2>{selectedCard.name}</h2>
             <p><strong>Capacity:</strong> {selectedCard.capacity}</p>
-            <p><strong>Location:</strong> {selectedCard.location}</p>
+            <p><strong>Location:</strong> {(() => {
+              const loc = selectedCard.location || "";
+              if (loc.includes(",")) {
+                const [block, floor] = loc.split(",");
+                return `${block ? `Block ${block}` : ''}${block && floor ? ', ' : ''}${floor ? `Floor ${floor}` : ''}`;
+              }
+              return loc;
+            })()}</p>
             <p><strong>Description:</strong> {selectedCard.description}</p>
+            <p><strong>Laptop Charging:</strong> {selectedCard.laptopCharging ? 'Yes' : 'No'}</p>
+            <p><strong>Projectors / Boards:</strong> {selectedCard.projectorAvailable ? `${selectedCard.projectorCount || 0}` : 'No'}</p>
             <div className="buttons">
               <p className="book" onClick={goToBookHall}>Book</p>
               <p className="close" onClick={()=>setSelectedCard(null)}>Close</p>

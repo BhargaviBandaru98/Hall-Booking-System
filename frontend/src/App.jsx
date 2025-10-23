@@ -30,10 +30,41 @@ function App() {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await axios.get(`${BASE_URL}/auth/current-user`, { withCredentials: true });
-        if (res.data.user) setUser(res.data.user);
-        else setUser(null);
+        const res = await axios.get(`${BASE_URL}/auth/current-user`);
+        if (res.data.user) {
+          setUser(res.data.user);
+          setLoading(false);
+          return;
+        }
+        setUser(null);
       } catch (error) {
+        console.warn("Initial current-user fetch failed:", error?.response?.status, error?.message);
+        // Try refresh token flow for user first
+        try {
+          console.log("Attempting to refresh access token via /user-api/refresh-token");
+          await axios.post(`${BASE_URL}/user-api/refresh-token`);
+          const retry = await axios.get(`${BASE_URL}/auth/current-user`);
+          if (retry.data.user) {
+            setUser(retry.data.user);
+            setLoading(false);
+            return;
+          }
+        } catch (errUserRefresh) {
+          console.warn("User refresh failed:", errUserRefresh?.response?.status);
+          // Try admin refresh
+          try {
+            console.log("Attempting to refresh access token via /admin-api/refresh-token");
+            await axios.post(`${BASE_URL}/admin-api/refresh-token`);
+            const retryAdmin = await axios.get(`${BASE_URL}/auth/current-user`);
+            if (retryAdmin.data.user) {
+              setUser(retryAdmin.data.user);
+              setLoading(false);
+              return;
+            }
+          } catch (errAdminRefresh) {
+            console.warn("Admin refresh failed:", errAdminRefresh?.response?.status);
+          }
+        }
         setUser(null);
       } finally {
         setLoading(false);

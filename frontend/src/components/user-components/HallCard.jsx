@@ -20,6 +20,10 @@ function HallCard(props) {
         </div>
         <div className="details2">
           <p>{props.hall.description.substring(0, 70)}...</p>
+          <div style={{marginTop:8, display:'flex', gap:8, alignItems:'center'}}>
+            <small style={{background:'#eee', padding:'4px 8px', borderRadius:6}}>{props.hall.laptopCharging ? 'Laptop Charging' : 'No Charging'}</small>
+            <small style={{background:'#fff4cc', padding:'4px 8px', borderRadius:6}}>{props.hall.projectorAvailable ? `Projectors: ${props.hall.projectorCount || 0}` : 'No Projector'}</small>
+          </div>
         </div>
         <p className="viewmore">View More</p>
       </div>

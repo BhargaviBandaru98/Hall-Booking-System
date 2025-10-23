@@ -18,7 +18,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.use(exp.json());
+// Increase JSON body size limit to allow base64 image uploads from the frontend (e.g. booking poster)
+// Default limit is small (~100kb). We allow up to 4mb here (adjust as needed).
+app.use(exp.json({ limit: '4mb' }));
+app.use(exp.urlencoded({ extended: true, limit: '4mb' }));
 
 const userApp = require("./APIs/user-api.js");
 const adminApp = require("./APIs/admin-api.js");

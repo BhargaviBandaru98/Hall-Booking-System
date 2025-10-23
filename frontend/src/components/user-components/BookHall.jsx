@@ -19,6 +19,9 @@ function BookHall() {
   const [msg, setMsg] = useState("");
   const [user] = useContext(userContext);
   const [halls, setHalls] = useState([]);
+  const [blocks, setBlocks] = useState([]);
+  const [selectedBlock, setSelectedBlock] = useState("");
+  const [availableHalls, setAvailableHalls] = useState(null); // null = not checked yet, [] = checked and none
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileError, setFileError] = useState("");
   const [currentSelectedDate, setCurrentSelectedDate] = useState("");
@@ -35,6 +38,21 @@ function BookHall() {
     const today = new Date();
     return today.toISOString().split('T')[0];
   };
+
+  // Get tomorrow's date in YYYY-MM-DD
+  const getTomorrowDate = () => {
+    const t = new Date();
+    t.setDate(t.getDate() + 1);
+    return t.toISOString().split('T')[0];
+  }
+
+  // disable today's date if current time past 15:00
+  const isTodayDisabled = () => {
+    const now = new Date();
+    return now.getHours() >= 15; // disable today if hour >= 15 (3pm)
+  };
+
+  const getMinDate = () => isTodayDisabled() ? getTomorrowDate() : getTodayDate();
 
   // Check if a slot time has passed for today
   const isSlotDisabled = (slot, selectedDate) => {
@@ -69,6 +87,9 @@ function BookHall() {
       try {
         const res = await axios.get(`${BASE_URL}/user-api/halls`);
         setHalls(res.data.halls);
+        // derive unique blocks
+        const uniqueBlocks = Array.from(new Set((res.data.halls || []).map(h => h.location && h.location.split(',')[0]).filter(Boolean)));
+        setBlocks(uniqueBlocks);
       } catch (error) {
         console.error("Failed to fetch halls:", error);
         setMsg("Failed to load halls.");
@@ -101,7 +122,7 @@ function BookHall() {
     const hallname = watch("hallname");
     const date = watch("date");
     const slot = watch("slot");
-    
+
     if (hallname && date && slot) {
       checkBookingConflict(hallname, date, slot);
     } else {
@@ -109,6 +130,8 @@ function BookHall() {
       setHasConflict(false);
     }
   }, [watch("hallname"), watch("date"), watch("slot")]);
+
+  // availableHalls will be set when user clicks 'Check availability'
 
   const handleHallChange = (e) => {
     setSelectedHall(e.target.value);
@@ -119,6 +142,8 @@ function BookHall() {
     setCurrentSelectedDate(selectedDate);
     // Also update the form value
     setValue("date", selectedDate);
+    // Reset availability when date changes
+    setAvailableHalls(null);
   };
 
   const handleFileChange = (e) => {
@@ -147,6 +172,39 @@ function BookHall() {
     }
 
     setSelectedFile(file);
+  };
+
+  // Manual availability check triggered by user after selecting date, slot and block
+  const handleCheckAvailability = async () => {
+    setMsg("");
+    setConflictWarning("");
+    setHasConflict(false);
+
+    const date = watch('date');
+    const slot = watch('slot');
+
+    if (!date || !slot || !selectedBlock) {
+      setConflictWarning('Please select date, slot and block before checking availability.');
+      setHasConflict(true);
+      return;
+    }
+
+    try {
+      const resp = await axios.get(`${BASE_URL}/user-api/available-halls`, { params: { date, slot, block: selectedBlock } });
+      const avail = resp.data?.availableHalls || [];
+      setAvailableHalls(avail);
+      if (avail.length === 0) {
+        setConflictWarning('No halls available for this date/slot/block. Please choose another date or slot.');
+        setHasConflict(true);
+      } else {
+        setConflictWarning(`hall is available. Please proceed to book.`);
+        setHasConflict(false);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch available halls', err);
+      setConflictWarning('Unable to check availability. Please try again.');
+      setHasConflict(true);
+    }
   };
 
   const convertToBase64 = (file) => {
@@ -302,29 +360,16 @@ function BookHall() {
       <h1>Book Hall</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <div className="content content1">
-          <label htmlFor="email">Email:</label>
-          <input type="email" id="email" placeholder={user?.email || "Please login"} disabled />
-          <label htmlFor="hallname">Hall:</label>
-          <select id="hallname" {...register("hallname", { required: true })} value={selectedHall} onChange={handleHallChange}>
-            <option value="" disabled>
-              --Select hall--
-            </option>
-            {halls.map((hall, idx) => (
-              <option key={idx} value={hall.name}>
-                {hall.name}
-              </option>
-            ))}
-          </select>
-          {errors.hallname && <p>*Hall is required</p>}
-          <label htmlFor="date">Date:</label>
+          <label htmlFor="date">Select date:</label>
           <input 
             type="date" 
             id="date" 
-            min={getTodayDate()}
+            min={getMinDate()}
             {...register("date", { required: true })} 
             onChange={handleDateChange}
           />
           {errors.date && <p>*Date is required</p>}
+
           <label htmlFor="slot">Slot:</label>
           <div className="slot">
             <div className="radio1 radio">
@@ -355,6 +400,36 @@ function BookHall() {
             </div>
           </div>
           {errors.slot && <p>*Slot is required</p>}
+
+          <label htmlFor="block">Select block:</label>
+          <select id="block" value={selectedBlock} onChange={(e) => { setSelectedBlock(e.target.value); setSelectedHall(null); setAvailableHalls(null); }}>
+            <option value="">--Select block--</option>
+            {blocks.map((b, i) => (
+              <option key={i} value={b}>{b}</option>
+            ))}
+          </select>
+
+          <label htmlFor="hallname">Select hall:</label>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <select id="hallname" {...register("hallname", { required: true })} value={selectedHall || ""} onChange={handleHallChange} disabled={!selectedBlock || (availableHalls !== null && availableHalls.length === 0)}>
+              <option value="" disabled>--Select hall--</option>
+              {halls
+                .filter(h => {
+                  if (!selectedBlock) return false;
+                  const block = h.location && h.location.split(',')[0];
+                  if (block !== selectedBlock) return false;
+                  if (availableHalls === null) return true; // availability not checked -> show all halls in block
+                  // availability checked -> show only available halls
+                  return availableHalls.some(a => a.name === h.name);
+                })
+                .map((hall, idx) => (
+                  <option key={idx} value={hall.name}>{hall.name}</option>
+                ))}
+            </select>
+            <button type="button" onClick={handleCheckAvailability} style={{ padding: '8px 10px' }}>Check availability</button>
+          </div>
+          {!selectedBlock && <p style={{color:'#f05', marginTop:'6px'}}>Please select a block to view halls.</p>}
+          {errors.hallname && <p>*Hall is required</p>}
         </div>
         <div className="content content2">
           <label htmlFor="eventName">Event Name:</label>

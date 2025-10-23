@@ -5,6 +5,10 @@ import App from './App.jsx';
 import { BrowserRouter } from 'react-router-dom';
 import { TokenContextProvider } from "./contexts/tokenContext.jsx";
 import UserContextProvider from './contexts/UserContextProvider.jsx';
+import axios from 'axios';
+
+// Always include credentials so httpOnly cookies are sent with requests
+axios.defaults.withCredentials = true;
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

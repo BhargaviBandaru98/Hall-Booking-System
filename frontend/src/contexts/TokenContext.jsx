@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from "react";
+import axios from "axios";
 
 const tokenContext = createContext();
 
@@ -8,8 +9,10 @@ export const TokenContextProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } else {
       localStorage.removeItem("token");
+      delete axios.defaults.headers.common["Authorization"];
     }
   }, [token]);
 

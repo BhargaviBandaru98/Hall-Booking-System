@@ -82,6 +82,38 @@
   text-shadow: 0 0 2px black;
 }
 
+/* Action buttons container */
+.cardActions{
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.cardActions .editBtn, .cardActions .blockToggle{
+  background: rgba(255,255,255,0.08);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cardActions .editBtn:hover{
+  background: rgba(255,255,255,0.14);
+}
+
+.cardActions .blockToggle{
+  background: rgba(200,30,30,0.1);
+  border: 1px solid rgba(200,30,30,0.15);
+}
+
+.cardActions .blockToggle:hover{
+  background: rgba(200,30,30,0.18);
+}
+
 /* Green circle for active */
 .circleActive {
   width: 14px;

@@ -20,6 +20,10 @@ function Halls() {
   const [msg, setMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [localBlockStatus, setLocalBlockStatus] = useState(false);
+  const [showProjectorCountField, setShowProjectorCountField] = useState(false);
+  const [showLaptopChargingField, setShowLaptopChargingField] = useState(false);
+  const [imagePreview, setImagePreview] = useState("");
+  const [imageBase64, setImageBase64] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   async function fetchWithCredentials(url, options = {}) {
@@ -61,12 +65,31 @@ function Halls() {
       setLocalBlockStatus(selectedHall.blockStatus || false);
       setValue("name", selectedHall.name);
       setValue("capacity", selectedHall.capacity);
+      // if location stored as 'Block,Floor' split for form
+      if (selectedHall.location && selectedHall.location.includes(",")) {
+        const parts = selectedHall.location.split(",");
+        setValue("block", parts[0]);
+        setValue("floor", parts[1]);
+      } else {
+        setValue("block", "");
+        setValue("floor", "");
+      }
       setValue("location", selectedHall.location);
+      setValue("laptopCharging", selectedHall.laptopCharging ? "yes" : "no");
+  setValue("projectorAvailable", selectedHall.projectorAvailable ? "yes" : "no");
+  setValue("projectorCount", selectedHall.projectorCount || "");
+  setShowProjectorCountField(Boolean(selectedHall.projectorAvailable));
       setValue("description", selectedHall.description);
+      // image preview from existing hall (may be data URL or URL)
+      setImagePreview(selectedHall.image || "");
+      setImageBase64("");
     } else {
       reset();
       setMsg("");
       setLocalBlockStatus(false);
+      setShowProjectorCountField(false);
+      setImagePreview("");
+      setImageBase64("");
     }
   }, [selectedHall, setValue, reset]);
 
@@ -74,7 +97,8 @@ function Halls() {
     if (
       errors.name?.type === "required" ||
       errors.capacity?.type === "required" ||
-      errors.location?.type === "required" ||
+      errors.block?.type === "required" ||
+      errors.floor?.type === "required" ||
       errors.description?.type === "required"
     ) {
       setMsg("*All details are required");
@@ -86,8 +110,18 @@ function Halls() {
   // Add new hall (name is editable on add)
   async function handleAddHall(hallData) {
     try {
+      // prepare payload
       hallData.blockStatus = false;
       hallData.capacity = Number(hallData.capacity);
+      // concat block and floor into location string
+      hallData.location = `${hallData.block || ""},${hallData.floor || ""}`;
+      hallData.laptopCharging = hallData.laptopCharging === "yes";
+      hallData.projectorAvailable = hallData.projectorAvailable === "yes";
+      hallData.projectorCount = hallData.projectorAvailable ? Number(hallData.projectorCount || 0) : 0;
+      // include image if provided
+      if (imageBase64) {
+        hallData.image = imageBase64;
+      }
 
       await fetchWithCredentials(`${BASE_URL}/admin-api/hall`, {
         method: "POST",
@@ -107,6 +141,17 @@ function Halls() {
       hallData._id = selectedHall._id;
       hallData.blockStatus = localBlockStatus;
       hallData.capacity = Number(hallData.capacity);
+      // concat block and floor into location string
+      hallData.location = `${hallData.block || ""},${hallData.floor || ""}`;
+      hallData.laptopCharging = hallData.laptopCharging === "yes";
+      hallData.projectorAvailable = hallData.projectorAvailable === "yes";
+      hallData.projectorCount = hallData.projectorAvailable ? Number(hallData.projectorCount || 0) : 0;
+      // image: if a new image was selected use base64, otherwise keep existing
+      if (imageBase64) {
+        hallData.image = imageBase64;
+      } else if (selectedHall && selectedHall.image) {
+        hallData.image = selectedHall.image;
+      }
 
       await fetchWithCredentials(`${BASE_URL}/admin-api/hall/${selectedHall.name}`, {
         method: "PUT",
@@ -143,6 +188,7 @@ function Halls() {
     setSelectedHall(null);
     setErrorMsg("");
     setShowDeleteConfirm(false);
+    setShowProjectorCountField(false);
   }
 
   return (
@@ -155,6 +201,7 @@ function Halls() {
             key={idx}
             hall={hall}
             onClick={() => setSelectedHall(hall)}
+            onEdit={() => setSelectedHall(hall)}
             className="card"
           />
         ))}
@@ -175,7 +222,8 @@ function Halls() {
           <div className="closepopup" onClick={closePopup} />
           <div className="popupbackground">
             <div className="popupcard">
-              <form onSubmit={handleSubmit(handleHallUpdate)}>
+              <div className="popupcontent">
+                <form onSubmit={handleSubmit(handleHallUpdate)}>
                 <div className="hallname-delete">
                   <label htmlFor="name">Hallname:</label>
                 </div>
@@ -193,17 +241,69 @@ function Halls() {
                   min="1"
                   {...register("capacity", { required: true })}
                 />
-                <label htmlFor="location">Location:</label>
-                <input
-                  type="text"
-                  id="location"
-                  {...register("location", { required: true })}
-                />
+
+                <label htmlFor="block">Block:</label>
+                <select id="block" {...register("block", { required: true })}>
+                  <option value="">Select Block</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
+
+                <label htmlFor="floor">Floor:</label>
+                <input type="text" id="floor" {...register("floor", { required: true })} />
+
+                <label htmlFor="laptopCharging">Laptop Charging Points:</label>
+                <select id="laptopCharging" {...register("laptopCharging")}>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+
+                <label htmlFor="projectorAvailable">Projectors / Smart Boards Available:</label>
+                <select
+                  id="projectorAvailable"
+                  {...register("projectorAvailable")}
+                  onChange={(e) => setShowProjectorCountField(e.target.value === "yes")}
+                >
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+
+                {showProjectorCountField && (
+                  <>
+                    <label htmlFor="projectorCount">Number of Projectors / Boards:</label>
+                    <input type="number" id="projectorCount" min="0" {...register("projectorCount")} />
+                  </>
+                )}
                 <label htmlFor="description">Description:</label>
                 <textarea
                   id="description"
                   {...register("description", { required: true })}
                 />
+
+                <label htmlFor="image">Image:</label>
+                <input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const result = reader.result;
+                      setImagePreview(result);
+                      setImageBase64(result);
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                />
+                {imagePreview && (
+                  <div style={{ marginTop: 10 }}>
+                    <img src={imagePreview} alt="preview" style={{ maxWidth: '100%', borderRadius: 6 }} />
+                  </div>
+                )}
                 <label htmlFor="blockToggle" style={{ marginTop: "10px" }}>Status:</label>
                 <button
                   type="button"
@@ -237,7 +337,8 @@ function Halls() {
                     </button>
                   </div>
                 )}
-              </form>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -249,21 +350,79 @@ function Halls() {
           <div className="closepopup" onClick={closePopup} />
           <div className="popupbackground">
             <div className="popupcard">
-              <form onSubmit={handleSubmit(handleAddHall)}>
+              <div className="popupcontent">
+                <form onSubmit={handleSubmit(handleAddHall)}>
                 <label htmlFor="name">Hallname:</label>
                 <input type="text" id="name" {...register("name", { required: true })} />
                 <label htmlFor="capacity">Capacity:</label>
                 <input type="number" id="capacity" min="1" {...register("capacity", { required: true })} />
-                <label htmlFor="location">Location:</label>
-                <input type="text" id="location" {...register("location", { required: true })} />
+
+                <label htmlFor="block">Block:</label>
+                <select id="block" {...register("block", { required: true })}>
+                  <option value="">Select Block</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
+
+                <label htmlFor="floor">Floor:</label>
+                <input type="text" id="floor" {...register("floor", { required: true })} />
+
+                <label htmlFor="laptopCharging">Laptop Charging Points:</label>
+                <select id="laptopCharging" {...register("laptopCharging")}>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+
+                <label htmlFor="projectorAvailable">Projectors / Smart Boards Available:</label>
+                <select
+                  id="projectorAvailable"
+                  {...register("projectorAvailable")}
+                  onChange={(e) => setShowProjectorCountField(e.target.value === "yes")}
+                >
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+
+                {showProjectorCountField && (
+                  <>
+                    <label htmlFor="projectorCount">Number of Projectors / Boards:</label>
+                    <input type="number" id="projectorCount" min="0" {...register("projectorCount")} />
+                  </>
+                )}
+
                 <label htmlFor="description">Description:</label>
                 <textarea id="description" rows={4} cols={60} {...register("description", { required: true })} />
+                <label htmlFor="image">Image:</label>
+                <input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const result = reader.result;
+                      setImagePreview(result);
+                      setImageBase64(result);
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                />
+                {imagePreview && (
+                  <div style={{ marginTop: 10 }}>
+                    <img src={imagePreview} alt="preview" style={{ maxWidth: '100%', borderRadius: 6 }} />
+                  </div>
+                )}
                 <p>{msg}</p>
                 <div className="buttons">
                   <button className="edit" type="submit">Add Hall</button>
                   <p className="close" onClick={closePopup}>Close</p>
                 </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
         </div>

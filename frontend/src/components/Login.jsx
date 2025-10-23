@@ -36,6 +36,9 @@ function Login() {
       } else {
         // Admin login code unchanged
         res = await axios.post(`${BASE_URL}/admin-api/login`, userData, { withCredentials: true });
+        if (res.data.token) {
+          setToken(res.data.token);
+        }
       }
 
       // Robust success check: case-insensitive, partial match

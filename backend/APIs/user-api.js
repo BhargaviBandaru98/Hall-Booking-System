@@ -113,20 +113,25 @@ userApp.post(
     await usersCollection.updateOne({ email: userEmail }, { $set: { refreshToken } });
 
     delete user.password;
+// Set cookies: secure only in production, use 'none' sameSite in production, 'lax' in development
+const cookieSecure = process.env.NODE_ENV === "production";
+const cookieSameSite = cookieSecure ? "none" : "lax";
 res.cookie("accessToken", accessToken, {
   httpOnly: true,
-  secure: true, // Must be true for SameSite=None
+  secure: cookieSecure,
   maxAge: 15 * 60 * 1000,
-  sameSite: "none"
+  sameSite: cookieSameSite,
 });
 res.cookie("refreshToken", refreshToken, {
   httpOnly: true,
-  secure: true, 
+  secure: cookieSecure,
   maxAge: 7 * 24 * 60 * 60 * 1000,
-  sameSite: "none"
+  sameSite: cookieSameSite,
 });
 
-    res.send({ message: "Login successful", user });
+        const responseBody = { message: "Login successful", user };
+        if (process.env.NODE_ENV !== "production") responseBody.token = accessToken;
+        res.send(responseBody);
   })
 );
 
@@ -147,14 +152,18 @@ userApp.post(
       }
 
       const newAccessToken = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: "15m" });
+      const cookieSecure2 = process.env.NODE_ENV === "production";
+      const cookieSameSite2 = cookieSecure2 ? "none" : "lax";
       res.cookie("accessToken", newAccessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: cookieSecure2,
         maxAge: 15 * 60 * 1000,
-        sameSite: "lax",
+        sameSite: cookieSameSite2,
       });
 
-      res.send({ message: "Access token refreshed" });
+      const responseBody = { message: "Access token refreshed" };
+      if (process.env.NODE_ENV !== "production") responseBody.token = newAccessToken;
+      res.send(responseBody);
     } catch (err) {
       res.status(403).send({ message: "Invalid refresh token" });
     }
@@ -172,6 +181,37 @@ userApp.get(
     const halls = await hallsCollection.find({ blockStatus: false }).toArray();
 
     res.json({ success: true, message: "Received all halls", halls });
+  })
+);
+
+
+
+// Returns available halls for a given date, slot and optional block
+// Query params: date, slot, block
+userApp.get(
+  "/available-halls",
+  expressAsyncHandler(async (req, res) => {
+    const { date, slot, block } = req.query;
+    const hallsCollection = req.app.get("hallsCollection");
+    const bookingsCollection = req.app.get("bookingsCollection");
+
+    if (!hallsCollection) return sendError(res, 500, "Halls collection not configured.");
+    if (!bookingsCollection) return sendError(res, 500, "Bookings collection not configured.");
+
+    if (!date || !slot) return sendError(res, 400, "date and slot are required");
+
+    // Find halls that are already booked for date+slot
+    const booked = await bookingsCollection.find({ date, slot, rejectStatus: { $ne: true } }).toArray();
+    const bookedNames = booked.map(b => b.hallname);
+
+    // Build query for halls
+    const query = { blockStatus: false };
+    if (block) query.location = { $regex: `^${block}\\b`, $options: 'i' };
+
+    const allHalls = await hallsCollection.find(query).toArray();
+    const availableHalls = allHalls.filter(h => !bookedNames.includes(h.name));
+
+    return res.json({ success: true, availableHalls, total: availableHalls.length });
   })
 );
 
@@ -282,6 +322,10 @@ userApp.post(
       console.log("Booking inserted successfully:", result.insertedId);
     } catch (dbError) {
       console.error("Database insertion error:", dbError);
+      // In development return the error message to help debugging
+      if (process.env.NODE_ENV !== 'production') {
+        return res.status(500).json({ success: false, message: "Failed to save booking to database.", error: dbError.message, stack: dbError.stack });
+      }
       return sendError(res, 500, "Failed to save booking to database.");
     }
 
@@ -312,6 +356,9 @@ userApp.post(
     res.status(201).json({ success: true, message: "Booking done and confirmation email sent", booking });
     } catch (error) {
       console.error("Booking endpoint error:", error);
+      if (process.env.NODE_ENV !== 'production') {
+        return res.status(500).json({ success: false, message: "An error occurred while processing your booking.", error: error.message, stack: error.stack });
+      }
       return sendError(res, 500, "An error occurred while processing your booking. Please try again.");
     }
   })

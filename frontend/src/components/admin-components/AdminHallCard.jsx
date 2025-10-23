@@ -51,6 +51,13 @@ function AdminHallCard(props) {
         <p className="viewmore">View More</p>
       </div>
 
+      <div className="cardActions">
+        <button className="editBtn" onClick={(e) => { e.stopPropagation(); if (props.onEdit) props.onEdit(); }}>Edit</button>
+        <button className="blockToggle" onClick={(e) => { e.stopPropagation(); toggleblock(); }}>
+          {blockStatus === false ? 'Block' : 'Unblock'}
+        </button>
+      </div>
+
       {/* Status indicator instead of toggle */}
       <div className="statusIndicator">
         <div

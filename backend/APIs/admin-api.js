@@ -26,21 +26,26 @@ adminApp.post("/login", expressAsyncHandler(async (req, res) => {
 
   delete user.password;
 
- res.cookie("accessToken", accessToken, {
+// Configure cookies: secure only in production, sameSite none in production to allow cross-site cookies
+const cookieSecure = process.env.NODE_ENV === "production";
+const cookieSameSite = cookieSecure ? "none" : "lax";
+res.cookie("accessToken", accessToken, {
   httpOnly: true,
-  secure: true, 
+  secure: cookieSecure,
   maxAge: 15 * 60 * 1000,
-  sameSite: "none"
+  sameSite: cookieSameSite,
 });
 
 res.cookie("refreshToken", refreshToken, {
   httpOnly: true,
-  secure: true, // Must be true for SameSite=None
+  secure: cookieSecure,
   maxAge: 7 * 24 * 60 * 60 * 1000,
-  sameSite: "none"
+  sameSite: cookieSameSite,
 });
 
-  res.send({ message: "Login successful", user });
+  const responseBody = { message: "Login successful", user };
+  if (process.env.NODE_ENV !== "production") responseBody.token = accessToken;
+  res.send(responseBody);
 }));
 adminApp.post("/refresh-token", expressAsyncHandler(async (req, res) => {
   const { refreshToken } = req.cookies;
@@ -56,14 +61,18 @@ adminApp.post("/refresh-token", expressAsyncHandler(async (req, res) => {
     }
 
     const newAccessToken = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: "15m" });
+    const cookieSecure2 = process.env.NODE_ENV === "production";
+    const cookieSameSite2 = cookieSecure2 ? "none" : "lax";
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: cookieSecure2,
       maxAge: 15 * 60 * 1000,
-      sameSite: "lax",
+      sameSite: cookieSameSite2,
     });
 
-    res.send({ message: "Access token refreshed" });
+    const responseBody = { message: "Access token refreshed" };
+    if (process.env.NODE_ENV !== "production") responseBody.token = newAccessToken;
+    res.send(responseBody);
   } catch (err) {
     res.status(403).send({ message: "Invalid refresh token" });
   }
