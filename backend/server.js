@@ -7,17 +7,32 @@ require("dotenv").config();
 
 const cors = require("cors");
 
+// Whitelist of allowed origins (add env-defined frontend URL if present)
+const whitelist = [
+  'https://vnr-campus-halls-booking.onrender.com',
+  'http://localhost:5173',
+  'https://hall-booking-system-kappa.vercel.app',
+];
+if (process.env.FRONTEND_URL) whitelist.push(process.env.FRONTEND_URL);
+
 const corsOptions = {
-  origin: [
-    'https://vnr-campus-halls-booking.onrender.com',
-    'http://localhost:5173',
-    'https://hall-booking-system-kappa.vercel.app'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or server-to-server)
+    if (!origin) return callback(null, true);
+    if (whitelist.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('CORS policy: Origin not allowed'), false);
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
   optionsSuccessStatus: 200 // For legacy browser support
 };
+
+// Apply CORS middleware and explicitly handle preflight requests
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Increase JSON body size limit to allow base64 image uploads from the frontend (e.g. booking poster)
 // Default limit is small (~100kb). We allow up to 4mb here (adjust as needed).
