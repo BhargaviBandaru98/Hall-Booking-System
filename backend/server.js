@@ -35,7 +35,8 @@ const corsOptions = {
 
 // Apply CORS middleware and explicitly handle preflight requests
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+// Use '/*' to avoid path-to-regexp parsing issues with a bare '*'
+app.options('/*', cors(corsOptions));
 
 // Increase JSON body size limit to allow base64 image uploads from the frontend (e.g. booking poster)
 // Default limit is small (~100kb). We allow up to 4mb here (adjust as needed).
