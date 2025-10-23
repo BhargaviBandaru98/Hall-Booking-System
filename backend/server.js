@@ -22,10 +22,13 @@ const corsOptions = {
     if (whitelist.indexOf(origin) !== -1) {
       return callback(null, true);
     } else {
+      console.warn(`CORS blocked origin: ${origin}`);
       return callback(new Error('CORS policy: Origin not allowed'), false);
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200 // For legacy browser support
 };
