@@ -26,22 +26,24 @@ adminApp.post("/login", expressAsyncHandler(async (req, res) => {
 
   delete user.password;
 
-// Configure cookies: secure only in production, sameSite none in production to allow cross-site cookies
-const cookieSecure = process.env.NODE_ENV === "production";
-const cookieSameSite = cookieSecure ? "none" : "lax";
-res.cookie("accessToken", accessToken, {
-  httpOnly: true,
-  secure: cookieSecure,
-  maxAge: 15 * 60 * 1000,
-  sameSite: cookieSameSite,
-});
+  // Configure cookies: secure only in production, sameSite none in production to allow cross-site cookies
+  const cookieSecure = process.env.NODE_ENV === "production";
+  const cookieSameSite = process.env.NODE_ENV === "production" ? "none" : "lax";
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: cookieSecure,
+    maxAge: 15 * 60 * 1000,
+    sameSite: cookieSameSite,
+    path: "/"
+  });
 
-res.cookie("refreshToken", refreshToken, {
-  httpOnly: true,
-  secure: cookieSecure,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  sameSite: cookieSameSite,
-});
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: cookieSecure,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    sameSite: cookieSameSite,
+    path: "/"
+  });
 
   const responseBody = { message: "Login successful", user };
   if (process.env.NODE_ENV !== "production") responseBody.token = accessToken;
@@ -609,6 +611,7 @@ adminApp.put(
   expressAsyncHandler(async (req, res) => {
     const bookingsCollection = req.app.get("bookingsCollection");
     const bookingID = Number(req.params.bookingID);
+    const { note } = req.body;
     const dbBooking = await bookingsCollection.findOne({ bookingID });
 
     if (!dbBooking) {
@@ -620,7 +623,13 @@ adminApp.put(
     }
 
     if (dbBooking.verifyStatus === false) {
-      await bookingsCollection.updateOne({ bookingID }, { $set: { verifyStatus: true } });
+      const updateData = { verifyStatus: true };
+      if (note) {
+        updateData.acceptanceNote = note;
+        updateData.acceptanceNoteDate = new Date().toISOString();
+      }
+      
+      await bookingsCollection.updateOne({ bookingID }, { $set: updateData });
 
       const usersCollection = req.app.get("usersCollection");
       if (usersCollection) {
@@ -642,6 +651,7 @@ adminApp.put(
                 <li><strong>Event Description:</strong> ${dbBooking.eventDescription || "N/A"}</li>
                 <li><strong>Date of Booking:</strong> ${new Date(dbBooking.dateOfBooking).toLocaleString() || "N/A"}</li>
               </ul>
+              ${note ? `<h3>Admin Note:</h3><p>${note}</p>` : ""}
               <p>Thank you for choosing VNR Campus Hall Bookings.</p>
               <p>Regards,<br/><strong>VNR Campus Hall Bookings</strong></p>
             </div>
@@ -714,6 +724,7 @@ adminApp.put(
   expressAsyncHandler(async (req, res) => {
     const bookingsCollection = req.app.get("bookingsCollection");
     const bookingID = Number(req.params.bookingID);
+    const { note } = req.body;
     const dbBooking = await bookingsCollection.findOne({ bookingID });
 
     if (!dbBooking) {
@@ -725,10 +736,13 @@ adminApp.put(
     }
 
     if (dbBooking.rejectStatus !== true) {
-      await bookingsCollection.updateOne(
-        { bookingID },
-        { $set: { rejectStatus: true, verifyStatus: true } }
-      );
+      const updateData = { rejectStatus: true, verifyStatus: true };
+      if (note) {
+        updateData.rejectionNote = note;
+        updateData.rejectionNoteDate = new Date().toISOString();
+      }
+      
+      await bookingsCollection.updateOne({ bookingID }, { $set: updateData });
 
 
       const usersCollection = req.app.get("usersCollection");
@@ -751,6 +765,7 @@ adminApp.put(
                 <li><strong>Event Description:</strong> ${dbBooking.eventDescription || "N/A"}</li>
                 <li><strong>Date of Booking:</strong> ${new Date(dbBooking.dateOfBooking).toLocaleString() || "N/A"}</li>
               </ul>
+              ${note ? `<h3>Rejection Reason:</h3><p>${note}</p>` : ""}
               <p>If you have questions, please contact the administration.</p>
               <p>Regards,<br/><strong>VNR Campus Hall Bookings</strong></p>
             </div>

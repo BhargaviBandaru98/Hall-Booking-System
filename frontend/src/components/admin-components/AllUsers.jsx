@@ -58,10 +58,8 @@ async function blockUser(userObj) {
         <table>
           <thead>
             <tr>
-              <th>Email</th>
-              <th>Firstname</th>
-              <th>Lastname</th>
               <th>Club</th>
+              <th>Email</th>
               <th>Role</th>
               <th>Block</th>
             </tr>
@@ -70,10 +68,8 @@ async function blockUser(userObj) {
             {users.length > 0 ? (
               users.map((user, idx) => (
                 <tr key={idx} className={user.activeStatus === false ? "blockedRow" : undefined}>
-                  <td>{user.email}</td>
-                  <td>{user.firstname}</td>
-                  <td>{user.lastname}</td>
                   <td>{user.club}</td>
+                  <td>{user.email}</td>
                   <td>{user.role}</td>
                   <td>
                     <div className="block" onClick={() => blockUser(user)}>

@@ -30,11 +30,17 @@ function AllBookings() {
     getHalls();
   }, []);
 
-  const [selectedBlock, setSelectedBlock] = useState("");
+  const [selectedBlock, setSelectedBlock] = useState("All");
+  const [selectedHallState, setSelectedHallState] = useState("All");
   const [filterDate, setFilterDate] = useState(null);
 
+  // Load today's bookings on initial load
+  useEffect(() => {
+    handleSelection("All");
+  }, []);
+
   async function handleSelection(hallname) {
-  if (!hallname) return;
+  if (!hallname && hallname !== "All") return;
   try {
     let res;
     // If 'All' selected, fetch all bookings or all bookings for a block
@@ -74,7 +80,7 @@ function AllBookings() {
 
     const sortedBookings = filteredBookings.sort((a, b) => new Date(a.date) - new Date(b.date));
     setBookings(sortedBookings);
-    setSelectedHall(hallname);
+    setSelectedHallState(hallname);
   } catch (error) {
     console.error("Failed to fetch bookings for hall:", error);
   }
@@ -117,9 +123,8 @@ function AllBookings() {
         <div className="select-calendar">
           <div className="selecthall">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start' }}>
-              <select id="block" value={selectedBlock} onChange={(e) => { setSelectedBlock(e.target.value); setBookings([]); setSelectedHall(null); setFilterDate(null); }}>
-                <option value="">--Select block--</option>
-                <option value="All">All</option>
+              <select id="block" value={selectedBlock} onChange={(e) => { setSelectedBlock(e.target.value); setSelectedHallState("All"); setBookings([]); setFilterDate(null); handleSelection("All"); }}>
+                <option value="All">All Blocks</option>
                 {blocks.map((b, i) => (
                   <option key={i} value={b}>{b}</option>
                 ))}
@@ -127,18 +132,13 @@ function AllBookings() {
 
               <select
                 id="hallname"
-                onChange={(e) => handleSelection(e.target.value)}
+                onChange={(e) => { handleSelection(e.target.value); setFilterDate(null); }}
                 name="hallname"
-                value={selectedHall || ""}
-                disabled={selectedBlock === ""}
+                value={selectedHallState}
               >
-                <option value="" disabled>
-                  --Select hall--
-                </option>
-                <option value="All">All</option>
+                <option value="All">All Halls</option>
                 {halls
                   .filter(h => {
-                    if (!selectedBlock) return false;
                     if (selectedBlock === 'All') return true;
                     const block = h.location && h.location.split(',')[0];
                     return block === selectedBlock;
@@ -203,7 +203,6 @@ function AllBookings() {
         )}
         {filterDate && (
           <div style={{ marginTop: 12 }}>
-            <strong>Filtering by date:</strong> {filterDate.toDateString()} &nbsp;
             <button onClick={() => setFilterDate(null)} style={{ padding: '6px 10px' }}>Clear filter</button>
           </div>
         )}

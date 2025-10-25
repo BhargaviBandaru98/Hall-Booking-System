@@ -77,3 +77,227 @@
 .verifybookings .tablecontainer::-webkit-scrollbar {
   display: none;
 }
+
+/* Reject Modal Styling */
+.verifybookings .rejectModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.verifybookings .rejectModal {
+  background: linear-gradient(135deg, rgba(20, 20, 40, 0.95) 0%, rgba(30, 20, 50, 0.95) 100%);
+  border: 2px solid rgba(153, 84, 244, 0.5);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(153, 84, 244, 0.3);
+}
+
+.verifybookings .rejectModal h2 {
+  color: #b277ff;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(153, 84, 244, 0.3);
+}
+
+.verifybookings .rejectModal p {
+  color: white;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.verifybookings .rejectModal p strong {
+  color: #b277ff;
+}
+
+.verifybookings .rejectModal label {
+  color: white;
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.verifybookings .rejectModal textarea {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(50, 50, 80, 0.6);
+  border: 1.5px solid rgba(153, 84, 244, 0.4);
+  border-radius: 8px;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.verifybookings .rejectModal textarea:focus {
+  outline: none;
+  border-color: #b277ff;
+  box-shadow: 0 0 10px rgba(153, 84, 244, 0.4);
+  background-color: rgba(50, 50, 80, 0.8);
+}
+
+.verifybookings .rejectModal textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.verifybookings .rejectModalButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+.verifybookings .rejectModalButtons button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.verifybookings .rejectModalButtons .confirmBtn {
+  background-color: rgba(220, 53, 69, 0.8);
+  color: white;
+  border: 1.5px solid rgba(220, 53, 69, 0.6);
+}
+
+.verifybookings .rejectModalButtons .confirmBtn:hover {
+  background-color: rgba(220, 53, 69, 1);
+  border-color: #ff6b6b;
+  box-shadow: 0 0 15px rgba(220, 53, 69, 0.4);
+}
+
+.verifybookings .rejectModalButtons .cancelBtn {
+  background-color: rgba(108, 117, 125, 0.6);
+  color: white;
+  border: 1.5px solid rgba(108, 117, 125, 0.5);
+}
+
+.verifybookings .rejectModalButtons .cancelBtn:hover {
+  background-color: rgba(108, 117, 125, 0.8);
+  border-color: #6c757d;
+}
+
+/* Accept Modal Styling */
+.verifybookings .acceptModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.verifybookings .acceptModal {
+  background: linear-gradient(135deg, rgba(20, 20, 40, 0.95) 0%, rgba(20, 40, 30, 0.95) 100%);
+  border: 2px solid rgba(76, 175, 80, 0.5);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
+}
+
+.verifybookings .acceptModal h2 {
+  color: #4caf50;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.verifybookings .acceptModal p {
+  color: white;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.verifybookings .acceptModal p strong {
+  color: #4caf50;
+}
+
+.verifybookings .acceptModal label {
+  color: white;
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.verifybookings .acceptModal textarea {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(50, 80, 60, 0.6);
+  border: 1.5px solid rgba(76, 175, 80, 0.4);
+  border-radius: 8px;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.verifybookings .acceptModal textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+  background-color: rgba(50, 80, 60, 0.8);
+}
+
+.verifybookings .acceptModal textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.verifybookings .acceptModalButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+.verifybookings .acceptModalButtons button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.verifybookings .acceptModalButtons .acceptConfirmBtn {
+  background-color: rgba(76, 175, 80, 0.8);
+  color: white;
+  border: 1.5px solid rgba(76, 175, 80, 0.6);
+}
+
+.verifybookings .acceptModalButtons .acceptConfirmBtn:hover {
+  background-color: rgba(76, 175, 80, 1);
+  border-color: #4caf50;
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+}
+
+.verifybookings .acceptModalButtons .cancelBtn {
+  background-color: rgba(108, 117, 125, 0.6);
+  color: white;
+  border: 1.5px solid rgba(108, 117, 125, 0.5);
+}
+

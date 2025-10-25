@@ -113,25 +113,27 @@ userApp.post(
     await usersCollection.updateOne({ email: userEmail }, { $set: { refreshToken } });
 
     delete user.password;
-// Set cookies: secure only in production, use 'none' sameSite in production, 'lax' in development
-const cookieSecure = process.env.NODE_ENV === "production";
-const cookieSameSite = cookieSecure ? "none" : "lax";
-res.cookie("accessToken", accessToken, {
-  httpOnly: true,
-  secure: cookieSecure,
-  maxAge: 15 * 60 * 1000,
-  sameSite: cookieSameSite,
-});
-res.cookie("refreshToken", refreshToken, {
-  httpOnly: true,
-  secure: cookieSecure,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  sameSite: cookieSameSite,
-});
+    // Set cookies: secure only in production, use 'none' sameSite in production, 'lax' in development
+    const cookieSecure = process.env.NODE_ENV === "production";
+    const cookieSameSite = process.env.NODE_ENV === "production" ? "none" : "lax";
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: cookieSecure,
+      maxAge: 15 * 60 * 1000,
+      sameSite: cookieSameSite,
+      path: "/"
+    });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: cookieSecure,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: cookieSameSite,
+      path: "/"
+    });
 
-        const responseBody = { message: "Login successful", user };
-        if (process.env.NODE_ENV !== "production") responseBody.token = accessToken;
-        res.send(responseBody);
+    const responseBody = { message: "Login successful", user };
+    if (process.env.NODE_ENV !== "production") responseBody.token = accessToken;
+    res.send(responseBody);
   })
 );
 
@@ -203,7 +205,7 @@ userApp.get(
     const blocks = docs.map(d => d.name || d._id).filter(Boolean);
     // Remove duplicates and sort (optional)
     const uniqueBlocks = Array.from(new Set(blocks));
-    console.log('Fetched blocks (fallback):', uniqueBlocks);
+    // console.log('Fetched blocks (fallback):', uniqueBlocks);
     return res.json({ success: true, blocks: uniqueBlocks });
   })
 );

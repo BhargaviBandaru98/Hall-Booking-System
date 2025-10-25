@@ -428,6 +428,15 @@ function BookHall() {
             </select>
             <button type="button" onClick={handleCheckAvailability} style={{ padding: '8px 10px' }}>Check availability</button>
           </div>
+          {isCheckingConflict && (
+            <p style={{ color: "blue", marginTop: "10px" }}>Checking availability...</p>
+          )}
+          
+          {conflictWarning && (
+            <p style={{ color: hasConflict ? "red" : "green", marginTop: "10px", fontWeight: "bold" }}>
+              {conflictWarning}
+            </p>
+          )}
           {!selectedBlock && <p style={{color:'#f05', marginTop:'6px'}}>Please select a block to view halls.</p>}
           {errors.hallname && <p>*Hall is required</p>}
         </div>
@@ -453,16 +462,7 @@ function BookHall() {
           </div>
           {fileError && <p className="file-error">{fileError}</p>}
           {selectedFile && <p className="file-success">Selected: {selectedFile.name}</p>}
-          
-          {isCheckingConflict && (
-            <p style={{ color: "blue", marginTop: "10px" }}>Checking availability...</p>
-          )}
-          
-          {conflictWarning && (
-            <p style={{ color: hasConflict ? "red" : "green", marginTop: "10px", fontWeight: "bold" }}>
-              {conflictWarning}
-            </p>
-          )}
+
           
           <p style={{ marginTop: "10px" }}>{msg}</p>
           <button type="submit" disabled={hasConflict || isCheckingConflict}>
