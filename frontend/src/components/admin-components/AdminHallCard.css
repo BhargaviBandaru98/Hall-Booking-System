@@ -105,6 +105,16 @@
   background: rgba(255,255,255,0.14);
 }
 
+.cardActions .editBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(100,100,100,0.08);
+}
+
+.cardActions .editBtn:disabled:hover {
+  background: rgba(100,100,100,0.08);
+}
+
 .cardActions .blockToggle{
   background: rgba(200,30,30,0.1);
   border: 1px solid rgba(200,30,30,0.15);
@@ -112,6 +122,16 @@
 
 .cardActions .blockToggle:hover{
   background: rgba(200,30,30,0.18);
+}
+
+.cardActions .blockToggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(100,100,100,0.08);
+}
+
+.cardActions .blockToggle:disabled:hover {
+  background: rgba(100,100,100,0.08);
 }
 
 /* Green circle for active */
@@ -137,4 +157,84 @@
 
 .inactiveText {
   color: red;
+}
+
+/* Block confirmation modal */
+.blockConfirmModal {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blockConfirmModal .modalBackdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+.blockConfirmModal .modalContent {
+  position: relative;
+  z-index: 2;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.blockConfirmModal .modalContent h3 {
+  margin: 0 0 12px 0;
+  color: #222;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.blockConfirmModal .modalContent p {
+  margin: 0 0 20px 0;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.blockConfirmModal .modalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.blockConfirmModal .modalButtons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.blockConfirmModal .confirmBtn {
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid #c82333;
+}
+
+.blockConfirmModal .confirmBtn:hover {
+  background-color: #c82333;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.blockConfirmModal .cancelBtn {
+  background-color: #6c757d;
+  color: white;
+  border: 1px solid #5a6268;
+}
+
+.blockConfirmModal .cancelBtn:hover {
+  background-color: #5a6268;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }

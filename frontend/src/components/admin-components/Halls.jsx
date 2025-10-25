@@ -1,7 +1,8 @@
 import "./Halls.css";
 import AdminHallCard from "./AdminHallCard.jsx";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
+import tokenContext from "../../contexts/TokenContext";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -14,7 +15,9 @@ function Halls() {
     reset,
   } = useForm();
 
+  const [token] = useContext(tokenContext);
   const [halls, setHalls] = useState([]);
+  const [allHalls, setAllHalls] = useState([]);
   const [selectedHall, setSelectedHall] = useState(null);
   const [addHall, setAddHall] = useState(false);
   const [msg, setMsg] = useState("");
@@ -25,12 +28,17 @@ function Halls() {
   const [imagePreview, setImagePreview] = useState("");
   const [imageBase64, setImageBase64] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [filterType, setFilterType] = useState("myHalls");
+  const [adminInfo, setAdminInfo] = useState(null);
 
   async function fetchWithCredentials(url, options = {}) {
     options.credentials = "include";
     options.headers = options.headers || {};
     if (!options.headers["Content-Type"] && options.body) {
       options.headers["Content-Type"] = "application/json";
+    }
+    if (token) {
+      options.headers["Authorization"] = `Bearer ${token}`;
     }
     try {
       const res = await fetch(url, options);
@@ -44,20 +52,43 @@ function Halls() {
     }
   }
 
-  // Fetch halls on mount
+  // Fetch admin info and halls on mount
   useEffect(() => {
-    async function getHalls() {
+    async function getAdminInfoAndHalls() {
       try {
-        const data = await fetchWithCredentials(`${BASE_URL}/admin-api/halls`);
-        setHalls(data.halls || []);
+        const adminData = await fetchWithCredentials(`${BASE_URL}/admin-api/admin-info`);
+        setAdminInfo(adminData.admin);
+        
+        const hallsData = await fetchWithCredentials(`${BASE_URL}/admin-api/halls`);
+        const allHallsList = hallsData.allHalls || [];
+        setAllHalls(allHallsList);
+        
+        // Filter halls based on admin's manages blocks
+        const myHallsList = allHallsList.filter(hall => 
+          adminData.admin.manages && adminData.admin.manages.includes(hall.block)
+        );
+        setHalls(myHallsList);
         setErrorMsg("");
       } catch (err) {
         setErrorMsg("Failed to fetch halls.");
         console.error(err);
       }
     }
-    getHalls();
+    getAdminInfoAndHalls();
   }, []);
+
+  // Handle filter toggle
+  const handleFilterChange = (type) => {
+    setFilterType(type);
+    if (type === "myHalls") {
+      const myHallsList = allHalls.filter(hall => 
+        adminInfo && adminInfo.manages && adminInfo.manages.includes(hall.block)
+      );
+      setHalls(myHallsList);
+    } else {
+      setHalls(allHalls);
+    }
+  }
 
   // Populate form with hall data on select
   useEffect(() => {
@@ -130,7 +161,7 @@ function Halls() {
       closePopup();
       window.location.reload();
     } catch (err) {
-      setErrorMsg("Failed to add hall.");
+      setErrorMsg(err.message || "Failed to add hall.");
       console.error(err);
     }
   }
@@ -160,7 +191,7 @@ function Halls() {
       closePopup();
       window.location.reload();
     } catch (err) {
-      setErrorMsg("Failed to update hall.");
+      setErrorMsg(err.message || "Failed to update hall.");
       console.error(err);
     }
   }
@@ -175,7 +206,7 @@ function Halls() {
       closePopup();
       window.location.reload();
     } catch (err) {
-      setErrorMsg("Failed to delete hall.");
+      setErrorMsg(err.message || "Failed to delete hall.");
       console.error(err);
     }
   }
@@ -195,6 +226,23 @@ function Halls() {
     <div className="halls">
       <h1>Halls / Auditoriums</h1>
       {errorMsg && <p className="error">{errorMsg}</p>}
+      
+      {/* Filter buttons */}
+      <div className="filterButtons" style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
+        <button 
+          className={filterType === "myHalls" ? "filterBtn active" : "filterBtn"}
+          onClick={() => handleFilterChange("myHalls")}
+        >
+          My Halls
+        </button>
+        <button 
+          className={filterType === "allHalls" ? "filterBtn active" : "filterBtn"}
+          onClick={() => handleFilterChange("allHalls")}
+        >
+          All Halls
+        </button>
+      </div>
+
       <div className="cards">
         {halls.map((hall, idx) => (
           <AdminHallCard
@@ -203,6 +251,7 @@ function Halls() {
             onClick={() => setSelectedHall(hall)}
             onEdit={() => setSelectedHall(hall)}
             className="card"
+            canEdit={adminInfo && adminInfo.manages && adminInfo.manages.includes(hall.block)}
           />
         ))}
         <div className="addhallcard" onClick={() => setAddHall(true)}>
@@ -245,10 +294,9 @@ function Halls() {
                 <label htmlFor="block">Block:</label>
                 <select id="block" {...register("block", { required: true })}>
                   <option value="">Select Block</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
+                  {adminInfo && adminInfo.manages && adminInfo.manages.map((block) => (
+                    <option key={block} value={block}>{block}</option>
+                  ))}
                 </select>
 
                 <label htmlFor="floor">Floor:</label>
@@ -360,10 +408,9 @@ function Halls() {
                 <label htmlFor="block">Block:</label>
                 <select id="block" {...register("block", { required: true })}>
                   <option value="">Select Block</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
+                  {adminInfo && adminInfo.manages && adminInfo.manages.map((block) => (
+                    <option key={block} value={block}>{block}</option>
+                  ))}
                 </select>
 
                 <label htmlFor="floor">Floor:</label>

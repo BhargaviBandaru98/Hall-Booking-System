@@ -119,8 +119,8 @@ adminApp.post("/refresh-token", expressAsyncHandler(async (req, res) => {
 
 adminApp.post(
   "/create-announcement",
-  verifyToken, 
-  async (req, res) => {
+  verifyToken,
+  expressAsyncHandler(async (req, res) => {
     try {
       const { title, message, validity, notifyMail } = req.body;
       const validityHours = Number(validity);
@@ -180,7 +180,7 @@ border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); font-family:Arial, sans
       console.error("Error creating announcement:", error);
       return res.status(500).json({ message: "Server error while creating announcement", error: error.message });
     }
-  }
+  })
 );
 
 
@@ -201,8 +201,92 @@ const formatTime = (date) => {
 adminApp.get("/halls", expressAsyncHandler(async (req, res) => {
   const hallsCollection = req.app.get("hallsCollection");
   const halls = await hallsCollection.find().toArray();
-  res.send({ message: "received all halls", halls });
+  res.send({ message: "received all halls", halls, allHalls: halls });
 }));
+
+adminApp.get("/admin-info", verifyToken, expressAsyncHandler(async (req, res) => {
+  const adminCollection = req.app.get("adminCollection");
+  const adminEmail = req.user?.email;
+
+  if (!adminEmail) {
+    return res.status(401).send({ message: "Admin not authenticated" });
+  }
+
+  const admin = await adminCollection.findOne({ email: adminEmail });
+  if (!admin) {
+    return res.status(404).send({ message: "Admin not found" });
+  }
+
+  res.send({ 
+    message: "Admin information retrieved", 
+    admin: {
+      name: admin.name,
+      email: admin.email,
+      manages: admin.manages || [],
+      userType: admin.userType,
+      phone: admin.phone,
+      altPhone: admin.altPhone
+    }
+  });
+}));
+
+adminApp.put(
+  "/update-admin",
+  verifyToken,
+  expressAsyncHandler(async (req, res) => {
+    const adminCollection = req.app.get("adminCollection");
+    const adminEmail = req.user?.email;
+
+    if (!adminEmail) {
+      return res.status(401).send({ message: "Admin not authenticated" });
+    }
+
+    const { name, phone, altPhone } = req.body;
+
+    // Validate input
+    if (!name) {
+      return res.status(400).send({ message: "Name is required" });
+    }
+
+    if (phone && !/^[0-9]{10}$/.test(phone)) {
+      return res.status(400).send({ message: "Phone number must be 10 digits" });
+    }
+
+    if (altPhone && !/^[0-9]{10}$/.test(altPhone)) {
+      return res.status(400).send({ message: "Alternate phone number must be 10 digits" });
+    }
+
+    const updateData = {
+      name,
+      phone: phone || null,
+      altPhone: altPhone || null
+    };
+
+    const result = await adminCollection.findOneAndUpdate(
+      { email: adminEmail },
+      { $set: updateData },
+      { returnDocument: "after" }
+    );
+
+    if (!result.value) {
+      return res.status(404).send({ message: "Admin not found" });
+    }
+
+    const updatedAdmin = result.value;
+
+    res.send({
+      message: "Admin profile updated successfully",
+      admin: {
+        name: updatedAdmin.name,
+        email: updatedAdmin.email,
+        manages: updatedAdmin.manages || [],
+        userType: updatedAdmin.userType,
+        phone: updatedAdmin.phone,
+        altPhone: updatedAdmin.altPhone
+      }
+    });
+  })
+);
 
 adminApp.post(
   "/hall",
@@ -210,6 +294,7 @@ adminApp.post(
   expressAsyncHandler(async (req, res) => {
     const hallsCollection = req.app.get("hallsCollection");
     const usersCollection = req.app.get("usersCollection");
+    const adminCollection = req.app.get("adminCollection");
     const hall = req.body;
 
     if (!hallsCollection) {
@@ -219,14 +304,28 @@ adminApp.post(
       return res.status(500).send({ message: "Users collection not configured." });
     }
 
+    // Verify block is provided
+    if (!hall.block) {
+      return res.status(400).send({ message: "Block is required when adding a hall" });
+    }
+
     const existing = await hallsCollection.findOne({ name: hall.name });
     if (existing) {
       return res.status(400).send({ message: "Hall already exists" });
     }
 
+    // Verify that the authenticated admin manages this block
+    const adminEmail = req.user?.email || req.body.adminEmail;
+    if (adminEmail) {
+      const admin = await adminCollection.findOne({ email: adminEmail });
+      if (admin && admin.manages && !admin.manages.includes(hall.block)) {
+        return res.status(403).send({ message: "You can only add halls to blocks you manage" });
+      }
+    }
+
     await hallsCollection.insertOne(hall);
 
-    const usersCursor = usersCollection.find({ verifyStatus: true,activeStatus: true });
+    const usersCursor = usersCollection.find({ verifyStatus: true, activeStatus: true });
     const users = await usersCursor.toArray();
 
     const subject = "New Hall Added - VNR Campus Hall Bookings";
@@ -262,6 +361,7 @@ adminApp.post(
 
 adminApp.put("/hall/:name", verifyToken, expressAsyncHandler(async (req, res) => {
   const hallsCollection = req.app.get("hallsCollection");
+  const adminCollection = req.app.get("adminCollection");
   const hallName = req.params.name;
   const hallData = { ...req.body };
 
@@ -272,6 +372,15 @@ adminApp.put("/hall/:name", verifyToken, expressAsyncHandler(async (req, res) =>
   const existing = await hallsCollection.findOne({ name: hallName });
   if (!existing) {
     return res.status(404).send({ message: "Hall doesn't exist" });
+  }
+
+  // Verify that the authenticated admin manages this hall's block
+  const adminEmail = req.user?.email;
+  if (adminEmail) {
+    const admin = await adminCollection.findOne({ email: adminEmail });
+    if (admin && admin.manages && !admin.manages.includes(existing.block)) {
+      return res.status(403).send({ message: "You can only edit halls in blocks you manage" });
+    }
   }
 
   await hallsCollection.updateOne({ name: hallName }, { $set: hallData });
@@ -309,11 +418,21 @@ adminApp.delete("/delete-announcement/:id", async (req, res) => {
 
 adminApp.put("/block-hall/:name", verifyToken, expressAsyncHandler(async (req, res) => {
   const hallsCollection = req.app.get("hallsCollection");
+  const adminCollection = req.app.get("adminCollection");
   const hallName = req.params.name;
 
   const hall = await hallsCollection.findOne({ name: hallName });
   if (!hall) {
     return res.status(404).send({ message: "Hall does not exist" });
+  }
+
+  // Verify that the authenticated admin manages this hall's block
+  const adminEmail = req.user?.email;
+  if (adminEmail) {
+    const admin = await adminCollection.findOne({ email: adminEmail });
+    if (admin && admin.manages && !admin.manages.includes(hall.block)) {
+      return res.status(403).send({ message: "You can only block/unblock halls in blocks you manage" });
+    }
   }
 
   const newBlockStatus = !hall.blockStatus;
@@ -330,11 +449,22 @@ adminApp.put("/block-hall/:name", verifyToken, expressAsyncHandler(async (req, r
 
 adminApp.delete("/hall/:name", verifyToken, expressAsyncHandler(async (req, res) => {
     const hallsCollection = req.app.get("hallsCollection");
+    const adminCollection = req.app.get("adminCollection");
     const name = req.params.name;
     const dbhall = await hallsCollection.findOne({ name });
     if (!dbhall) {
         return res.send({ message: "Hall doesn't exist" });
     }
+
+    // Verify that the authenticated admin manages this hall's block
+    const adminEmail = req.user?.email;
+    if (adminEmail) {
+      const admin = await adminCollection.findOne({ email: adminEmail });
+      if (admin && admin.manages && !admin.manages.includes(dbhall.block)) {
+        return res.status(403).send({ message: "You can only delete halls in blocks you manage" });
+      }
+    }
+
     await hallsCollection.deleteOne({ name });
     res.send({ message: "Hall has been deleted" });
 }));

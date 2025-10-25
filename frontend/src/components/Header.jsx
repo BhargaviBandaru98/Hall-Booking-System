@@ -52,8 +52,16 @@ function Header() {
           <div className="user">
             <h2>Hi, {user.firstname || "User"}!</h2>
           </div>
-          <div className="logout" onClick={handleLogout}>
-            Logout
+          <div className="topright">
+            <Link to={user.userType === "admin" ? "/adminprofile/profile" : "/userprofile"} className="profileBtn" title="View Profile">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M12 14c-4 0-6 2-6 4v3h12v-3c0-2-2-4-6-4z"/>
+              </svg>
+            </Link>
+            <div className="logout" onClick={handleLogout}>
+              Logout
+            </div>
           </div>
         </div>
       )}

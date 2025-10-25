@@ -8,6 +8,39 @@
     margin-top: 20px;
     text-shadow: 0 0 50px #9954f49a;
 }
+
+/* Filter Buttons */
+.halls .filterButtons{
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.halls .filterButtons .filterBtn {
+    cursor: pointer;
+    padding: 10px 20px;
+    border: 2px solid #9954f4;
+    background-color: transparent;
+    color: #9954f4;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.halls .filterButtons .filterBtn:hover {
+    background-color: rgba(153, 84, 244, 0.1);
+    transform: translateY(-2px);
+}
+
+.halls .filterButtons .filterBtn.active {
+    background-color: #9954f4;
+    color: white;
+    box-shadow: 0 0 20px rgba(153, 84, 244, 0.5);
+}
+
 .halls .cards{
     display: flex;
     flex-wrap: wrap;

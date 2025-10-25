@@ -16,6 +16,7 @@ import VerifyBookings from "./components/admin-components/VerifyBookings.jsx";
 import AllUsers from "./components/admin-components/AllUsers.jsx";
 import VerifyUsers from "./components/admin-components/VerifyUsers.jsx";
 import Announce from "./components/admin-components/Announce.jsx";
+import AdminProfileSettings from "./components/admin-components/AdminProfileSettings.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import { useContext, useState, useEffect } from "react";
 import { userContext } from "./contexts/UserContext.jsx";
@@ -113,6 +114,7 @@ function App() {
                 { path: "allusers", element: <AllUsers /> },
                 { path: "verifyusers", element: <VerifyUsers /> },
                 { path: "announcements", element: <Announce /> },
+                { path: "profile", element: <AdminProfileSettings /> },
                 { path: "", element: <Navigate to="halls" /> },
               ],
             },

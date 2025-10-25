@@ -50,7 +50,7 @@ function Registration() {
       };
 
       // Ensure required fields per spec
-      const required = ["club", "firstname", "phone", "role", "email", "password"];
+      const required = ["club", "phone", "role", "email", "password"];
       for (const r of required) {
         if (!payload[r]) throw new Error(`${r} is required`);
       }

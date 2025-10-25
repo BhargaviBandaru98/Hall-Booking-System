@@ -62,13 +62,41 @@
     text-align: center;
     min-width: 250px;
 }
+.header2 .topright{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.header2 .profileBtn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(153, 84, 244, 0.2);
+    border: 1.5px solid rgba(153, 84, 244, 0.5);
+    color: #b277ff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+.header2 .profileBtn:hover{
+    background-color: rgba(153, 84, 244, 0.4);
+    border-color: #b277ff;
+    box-shadow: 0 0 15px rgba(153, 84, 244, 0.5);
+    transform: scale(1.1);
+}
+.header2 .profileBtn svg{
+    width: 20px;
+    height: 20px;
+}
 .header2 .logout{
     color: white;
     font-size: 16px;
     border: 1px solid white;
     padding: 5px;
     border-radius: 6px;
-    margin-left: 91px;
     width: 70.33px;
     text-align: center;
     cursor: pointer;
@@ -114,7 +142,12 @@
     .header2 .user{
         display: none;
     }
+    .header2 .topright{
+        gap: 10px;
+    }
+    .header2 .profileBtn,
     .header2 .logout{
-        margin-left: 0px;
+        padding: 6px 12px;
+        font-size: 12px;
     }
 }

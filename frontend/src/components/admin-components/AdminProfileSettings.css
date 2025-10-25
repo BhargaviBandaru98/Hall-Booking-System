@@ -1,0 +1,312 @@
+.adminProfileSettings {
+  margin-top: 12vh;
+  margin-bottom: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.adminProfileSettings h1 {
+  text-align: center;
+  color: white;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  text-shadow: 0 0 50px #9954f49a;
+  font-size: 28px;
+}
+
+.profileContainer {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.profileInfo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  width: 100%;
+}
+
+.infoSection {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.infoSection h2 {
+  color: #222;
+  font-size: 20px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #9954f4;
+  padding-bottom: 10px;
+}
+
+.infoDisplay {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.infoDisplay h2 {
+  color: #222;
+  font-size: 20px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #9954f4;
+  padding-bottom: 10px;
+}
+
+.displayField {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.displayField label {
+  display: block;
+  font-weight: 700;
+  color: #555;
+  font-size: 13px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.displayField p {
+  color: #222;
+  font-size: 15px;
+  margin: 0;
+  word-break: break-word;
+}
+
+.displayField .badge {
+  display: inline-block;
+  background-color: #9954f4;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.displayField .blocks {
+  color: #222;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.formGroup {
+  margin-bottom: 18px;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #9954f4;
+  box-shadow: 0 0 0 3px rgba(153, 84, 244, 0.1);
+}
+
+.formGroup input:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.formGroup small {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.fieldError {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.message {
+  background-color: #e7d4f5;
+  border: 1px solid #d1a8e6;
+  color: #6c3483;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.managedBlocksInfo {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #9954f4;
+}
+
+.managedBlocksInfo h3 {
+  color: #222;
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+}
+
+.blocksList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.blockBadge {
+  display: inline-block;
+  background-color: #9954f4;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.managedBlocksInfo small {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+}
+
+.formButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.updateBtn {
+  flex: 1;
+  padding: 12px 24px;
+  background-color: #9954f4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(153, 84, 244, 0.3);
+}
+
+.updateBtn:hover {
+  background-color: #7d3fb8;
+  box-shadow: 0 4px 12px rgba(153, 84, 244, 0.4);
+  transform: translateY(-2px);
+}
+
+.updateBtn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profileInfo {
+    grid-template-columns: 1fr;
+  }
+
+  .adminProfileSettings h1 {
+    font-size: 24px;
+  }
+
+  .infoSection,
+  .infoDisplay {
+    padding: 16px;
+  }
+
+  .profileContainer {
+    gap: 15px;
+  }
+
+  .blocksList {
+    gap: 6px;
+  }
+
+  .blockBadge {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .adminProfileSettings {
+    padding: 10px;
+    margin-top: 15vh;
+  }
+
+  .adminProfileSettings h1 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .profileInfo {
+    gap: 15px;
+  }
+
+  .infoSection,
+  .infoDisplay {
+    padding: 12px;
+  }
+
+  .formGroup label {
+    font-size: 13px;
+  }
+
+  .formGroup input {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .displayField label {
+    font-size: 11px;
+  }
+
+  .displayField p {
+    font-size: 13px;
+  }
+}
