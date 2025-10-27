@@ -8,6 +8,42 @@ const REFRESH_SECRET = process.env.REFRESH_SECRET;
 const { ObjectId } = require("mongodb");
 let { verifyToken } = require("../APIs/auth-router.js");
 const { sendEmaill } = require("./emailService");
+// Helper: decide cookie options based on incoming request rather than NODE_ENV
+function determineCookieOptions(req) {
+  // Default conservative values for local/dev
+  let secure = false;
+  let sameSite = "lax";
+
+  try {
+    const origin = req.headers && req.headers.origin;
+    const hostHeader = req.headers && req.headers.host; // may include port
+    const host = hostHeader ? hostHeader.split(":")[0] : null;
+
+    // If origin exists and is different host than the backend host, it's cross-site
+    if (origin) {
+      const originHostname = new URL(origin).hostname;
+      if (host && originHostname && originHostname !== host) {
+        // cross-site requests need SameSite=None and secure
+        sameSite = "none";
+        secure = true;
+      } else {
+        // same-site origin: use lax and secure only if origin uses https
+        sameSite = "lax";
+        secure = origin.startsWith("https:") || req.secure || (req.headers["x-forwarded-proto"] === "https");
+      }
+    } else {
+      // No origin header (e.g., server-to-server or some browsers) - infer from protocol/host
+      secure = req.secure || (req.headers && req.headers["x-forwarded-proto"] === "https") || (host && host !== 'localhost');
+      sameSite = secure ? "none" : "lax";
+    }
+  } catch (err) {
+    // Fallback conservative values
+    secure = false;
+    sameSite = "lax";
+  }
+
+  return { secure, sameSite };
+}
 adminApp.post("/login", expressAsyncHandler(async (req, res) => {
   const adminCollection = req.app.get("adminCollection");
   const { email, password } = req.body;
@@ -26,27 +62,25 @@ adminApp.post("/login", expressAsyncHandler(async (req, res) => {
 
   delete user.password;
 
-  // Configure cookies: secure only in production, sameSite none in production to allow cross-site cookies
-  const cookieSecure = process.env.NODE_ENV === "production";
-  const cookieSameSite = process.env.NODE_ENV === "production" ? "none" : "lax";
+  // Configure cookies based on incoming request (origin/host/protocol)
+  const cookieOpts = determineCookieOptions(req);
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: cookieSecure,
+    secure: cookieOpts.secure,
     maxAge: 15 * 60 * 1000,
-    sameSite: cookieSameSite,
+    sameSite: cookieOpts.sameSite,
     path: "/"
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: cookieSecure,
+    secure: cookieOpts.secure,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    sameSite: cookieSameSite,
+    sameSite: cookieOpts.sameSite,
     path: "/"
   });
 
   const responseBody = { message: "Login successful", user };
-  if (process.env.NODE_ENV !== "production") responseBody.token = accessToken;
   res.send(responseBody);
 }));
 
@@ -102,18 +136,16 @@ adminApp.post("/refresh-token", expressAsyncHandler(async (req, res) => {
     }
 
     const newAccessToken = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: "15m" });
-    const cookieSecure2 = process.env.NODE_ENV === "production";
-    const cookieSameSite2 = cookieSecure2 ? "none" : "lax";
+    const cookieOpts2 = determineCookieOptions(req);
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: cookieSecure2,
+      secure: cookieOpts2.secure,
       maxAge: 15 * 60 * 1000,
-      sameSite: cookieSameSite2,
+      sameSite: cookieOpts2.sameSite,
     });
 
-    const responseBody = { message: "Access token refreshed" };
-    if (process.env.NODE_ENV !== "production") responseBody.token = newAccessToken;
-    res.send(responseBody);
+  const responseBody = { message: "Access token refreshed" };
+  res.send(responseBody);
   } catch (err) {
     res.status(403).send({ message: "Invalid refresh token" });
   }
@@ -236,6 +268,16 @@ adminApp.put(
   "/update-admin",
   verifyToken,
   expressAsyncHandler(async (req, res) => {
+    console.log("[admin-api] /update-admin called", {
+      method: req.method,
+      path: req.path,
+      headers: {
+        origin: req.headers.origin,
+        host: req.headers.host,
+        cookie: req.headers.cookie ? '[present]' : '[none]'
+      },
+      bodyPreview: req.body && Object.keys(req.body).slice(0,5)
+    });
     const adminCollection = req.app.get("adminCollection");
     const adminEmail = req.user?.email;
 
@@ -603,6 +645,13 @@ adminApp.get("/hall-bookings/:hallname", expressAsyncHandler(async(req, res)=>{
     let hallname = req.params.hallname;
     let bookings = await bookingsCollection.find({hallname: hallname, verifyStatus: true}).toArray();
     res.send({message: "received all bookings", bookings: bookings});
+}));
+
+adminApp.get("/user-bookings/:email", expressAsyncHandler(async(req, res)=>{
+    let bookingsCollection = req.app.get("bookingsCollection");
+    let email = req.params.email;
+    let bookings = await bookingsCollection.find({bookingEmail: email}).toArray();
+    res.send({message: "received all user bookings", bookings: bookings});
 }));
 
 adminApp.put(

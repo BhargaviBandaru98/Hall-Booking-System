@@ -7,13 +7,29 @@ require("dotenv").config();
 
 const cors = require("cors");
 
-// Whitelist of allowed origins (add env-defined frontend URL if present)
-const whitelist = [
+// Simple request logger to aid debugging (prints method and path)
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.path} - Origin: ${req.headers.origin || '-'} Host: ${req.headers.host || '-'} `);
+  next();
+});
+
+// Build CORS whitelist from defaults + FRONTEND_URL env var(s)
+const defaultOrigins = [
   'https://vnr-campus-halls-booking.onrender.com',
-  'http://localhost:5173',
   'https://hall-booking-system-kappa.vercel.app',
 ];
-if (process.env.FRONTEND_URL) whitelist.push(process.env.FRONTEND_URL);
+
+// Always allow common local dev origin
+const localDevOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+
+// FRONTEND_URL can be a comma-separated list of origins
+let envOrigins = [];
+if (process.env.FRONTEND_URL) {
+  envOrigins = process.env.FRONTEND_URL.split(',').map(s => s.trim()).filter(Boolean);
+}
+
+// Combine and dedupe
+const whitelist = Array.from(new Set([ ...defaultOrigins, ...envOrigins, ...localDevOrigins ]));
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -35,6 +51,10 @@ const corsOptions = {
 
 // Apply CORS middleware and explicitly handle preflight requests
 app.use(cors(corsOptions));
+
+// Trust proxy headers (important when behind a reverse proxy/load balancer)
+// so req.secure and x-forwarded-proto are set correctly for cookie decisions.
+app.set('trust proxy', 1);
 
 // Increase JSON body size limit to allow base64 image uploads from the frontend (e.g. booking poster)
 // Default limit is small (~100kb). We allow up to 4mb here (adjust as needed).
@@ -59,8 +79,8 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
   cors: {
-    // Allow configured FRONTEND_URL (if set) plus Vercel deployment origin
-    origin: [process.env.FRONTEND_URL, 'https://hall-booking-system-kappa.vercel.app'].filter(Boolean),
+    // Reuse the same whitelist used by Express CORS above so Socket.io allows the same origins
+    origin: whitelist,
     methods: ["GET", "POST"],
     credentials: true
   }

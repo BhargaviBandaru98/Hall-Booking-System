@@ -4,6 +4,35 @@ const expressAsyncHandler = require("express-async-handler");
 
 const authRouter = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
+const REFRESH_SECRET = process.env.REFRESH_SECRET;
+
+// Helper to determine cookie options similar to other APIs
+function determineCookieOptions(req) {
+  let secure = false;
+  let sameSite = "lax";
+  try {
+    const origin = req.headers && req.headers.origin;
+    const hostHeader = req.headers && req.headers.host;
+    const host = hostHeader ? hostHeader.split(":")[0] : null;
+    if (origin) {
+      const originHostname = new URL(origin).hostname;
+      if (host && originHostname && originHostname !== host) {
+        sameSite = "none";
+        secure = true;
+      } else {
+        sameSite = "lax";
+        secure = origin.startsWith("https:") || req.secure || (req.headers["x-forwarded-proto"] === "https");
+      }
+    } else {
+      secure = req.secure || (req.headers && req.headers["x-forwarded-proto"] === "https") || (host && host !== 'localhost');
+      sameSite = secure ? "none" : "lax";
+    }
+  } catch (err) {
+    secure = false;
+    sameSite = "lax";
+  }
+  return { secure, sameSite };
+}
 
 // Middleware to verify JWT token from HTTP-only cookie 'accessToken'
 function verifyTokenFromCookie(req, res, next) {
@@ -71,6 +100,40 @@ authRouter.get(
 
     // Try users collection first
     let user = null;
+
+// Logout endpoint: clears cookies and removes refresh token from DB (if present)
+authRouter.post(
+  "/logout",
+  expressAsyncHandler(async (req, res) => {
+    const { refreshToken } = req.cookies || {};
+    const usersCollection = req.app.get("usersCollection");
+    const adminCollection = req.app.get("adminCollection");
+
+    // Try to remove refresh token from matching user/admin document
+    if (refreshToken) {
+      try {
+        const payload = jwt.verify(refreshToken, REFRESH_SECRET);
+        const email = payload.email;
+        if (usersCollection) {
+          await usersCollection.updateOne({ email }, { $unset: { refreshToken: "" } });
+        }
+        if (adminCollection) {
+          await adminCollection.updateOne({ email }, { $unset: { refreshToken: "" } });
+        }
+      } catch (err) {
+        // ignore verification error — we still clear cookies
+        console.warn("logout: refresh token verify failed", err.message);
+      }
+    }
+
+    const cookieOpts = determineCookieOptions(req);
+    // Clear cookies (path and sameSite/secure should match how they were set)
+    res.clearCookie("accessToken", { path: "/", sameSite: cookieOpts.sameSite, secure: cookieOpts.secure });
+    res.clearCookie("refreshToken", { path: "/", sameSite: cookieOpts.sameSite, secure: cookieOpts.secure });
+
+    return res.send({ message: "Logged out" });
+  })
+);
     if (usersCollection) {
       user = await usersCollection.findOne({ email: userEmail });
       if (user) {

@@ -2,6 +2,7 @@ import "./AdminProfileSettings.css";
 import { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import tokenContext from "../../contexts/TokenContext";
+import { userContext } from "../../contexts/UserContext";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -15,6 +16,7 @@ function AdminProfileSettings() {
   } = useForm();
 
   const [token] = useContext(tokenContext);
+  const [user] = useContext(userContext);
   const [adminInfo, setAdminInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
@@ -25,21 +27,33 @@ function AdminProfileSettings() {
   useEffect(() => {
     async function fetchAdminInfo() {
       try {
+        // If App already populated userContext with admin, use it (avoids extra request)
+        if (user && user.userType === "admin") {
+          setAdminInfo(user);
+          setValue("name", user.name || "");
+          setValue("email", user.email || "");
+          setValue("phone", user.phone || "");
+          setValue("altPhone", user.altPhone || "");
+          setLoading(false);
+          return;
+        }
+
+        // Only include Authorization header if a token is available in TokenContext
         const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: {},
           withCredentials: true,
         };
+        if (token) config.headers.Authorization = `Bearer ${token}`;
+
         const res = await axios.get(`${BASE_URL}/admin-api/admin-info`, config);
         setAdminInfo(res.data.admin);
-        
+
         // Populate form with admin data
         setValue("name", res.data.admin.name || "");
         setValue("email", res.data.admin.email || "");
         setValue("phone", res.data.admin.phone || "");
         setValue("altPhone", res.data.admin.altPhone || "");
-        
+
         setLoading(false);
       } catch (err) {
         setErrorMsg("Failed to load admin information.");
@@ -47,11 +61,10 @@ function AdminProfileSettings() {
         setLoading(false);
       }
     }
-    
-    if (token) {
-      fetchAdminInfo();
-    }
-  }, [token, setValue]);
+
+    // Fetch admin info on mount
+    fetchAdminInfo();
+  }, [token, user, setValue]);
 
   async function handleUpdateProfile(data) {
     try {
@@ -97,9 +110,8 @@ function AdminProfileSettings() {
         setSuccessMsg("");
       }, 3000);
     } catch (err) {
-      setErrorMsg(
-        err.response?.data?.message || "Failed to update profile."
-      );
+      const serverMsg = err.response?.data?.message;
+      setErrorMsg(serverMsg ? `${serverMsg} (status ${err.response?.status})` : "Failed to update profile.");
       console.error(err);
     }
   }

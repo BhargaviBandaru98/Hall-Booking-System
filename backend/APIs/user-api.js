@@ -13,6 +13,42 @@ function sendError(res, status, message) {
   return res.status(status).json({ success: false, message });
 }
 
+// Helper: decide cookie options based on incoming request rather than NODE_ENV
+function determineCookieOptions(req) {
+  let secure = false;
+  let sameSite = "lax";
+  try {
+    const origin = req.headers && req.headers.origin;
+    const hostHeader = req.headers && req.headers.host; // includes port
+    const proto = req.secure || (req.headers && req.headers["x-forwarded-proto"] === "https") ? "https" : "http";
+    const requestOrigin = hostHeader ? `${proto}://${hostHeader}` : null;
+
+    if (origin && requestOrigin) {
+      const originUrl = new URL(origin);
+      const originHost = originUrl.hostname;
+      if (originHost === 'localhost' || originHost === '127.0.0.1') {
+        // Local dev: treat as same-site across ports
+        sameSite = "lax";
+        secure = false;
+      } else if (origin === requestOrigin) {
+        sameSite = "lax";
+        secure = origin.startsWith("https:") || req.secure;
+      } else {
+        sameSite = "none";
+        secure = true;
+      }
+    } else {
+      secure = req.secure || (req.headers && req.headers["x-forwarded-proto"] === "https");
+      sameSite = secure ? "none" : "lax";
+    }
+  } catch (err) {
+    secure = false;
+    sameSite = "lax";
+  }
+
+  return { secure, sameSite };
+}
+
 userApp.get(
   "/announcement-details",
   expressAsyncHandler(async (req, res) => {
@@ -113,27 +149,25 @@ userApp.post(
     await usersCollection.updateOne({ email: userEmail }, { $set: { refreshToken } });
 
     delete user.password;
-    // Set cookies: secure only in production, use 'none' sameSite in production, 'lax' in development
-    const cookieSecure = process.env.NODE_ENV === "production";
-    const cookieSameSite = process.env.NODE_ENV === "production" ? "none" : "lax";
+    // Set cookies based on request origin/host/protocol
+    const cookieOpts = determineCookieOptions(req);
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: cookieSecure,
+      secure: cookieOpts.secure,
       maxAge: 15 * 60 * 1000,
-      sameSite: cookieSameSite,
+      sameSite: cookieOpts.sameSite,
       path: "/"
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: cookieSecure,
+      secure: cookieOpts.secure,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: cookieSameSite,
+      sameSite: cookieOpts.sameSite,
       path: "/"
     });
 
-    const responseBody = { message: "Login successful", user };
-    if (process.env.NODE_ENV !== "production") responseBody.token = accessToken;
-    res.send(responseBody);
+  const responseBody = { message: "Login successful", user };
+  res.send(responseBody);
   })
 );
 
@@ -154,18 +188,16 @@ userApp.post(
       }
 
       const newAccessToken = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: "15m" });
-      const cookieSecure2 = process.env.NODE_ENV === "production";
-      const cookieSameSite2 = cookieSecure2 ? "none" : "lax";
+      const cookieOpts2 = determineCookieOptions(req);
       res.cookie("accessToken", newAccessToken, {
         httpOnly: true,
-        secure: cookieSecure2,
+        secure: cookieOpts2.secure,
         maxAge: 15 * 60 * 1000,
-        sameSite: cookieSameSite2,
+        sameSite: cookieOpts2.sameSite,
       });
 
-      const responseBody = { message: "Access token refreshed" };
-      if (process.env.NODE_ENV !== "production") responseBody.token = newAccessToken;
-      res.send(responseBody);
+  const responseBody = { message: "Access token refreshed" };
+  res.send(responseBody);
     } catch (err) {
       res.status(403).send({ message: "Invalid refresh token" });
     }

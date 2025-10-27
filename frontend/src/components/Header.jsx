@@ -1,5 +1,7 @@
 import "./Header.css";
 import { useState, useContext } from "react";
+import axios from "axios";
+import tokenContext from "../contexts/TokenContext";
 import { Link, useNavigate } from "react-router-dom";
 import { userContext } from "../contexts/UserContext.jsx";
 
@@ -12,10 +14,22 @@ function Header() {
   const loggedIn = user && Object.keys(user).length > 0;
 
   function handleLogout() {
-    setSelected("home");
-    setUser({});
-    navigate("/");
+    (async () => {
+      const BASE_URL = import.meta.env.VITE_BASE_URL;
+      try {
+        await axios.post(`${BASE_URL}/auth/logout`, {}, { withCredentials: true });
+      } catch (err) {
+        console.warn("Logout request failed:", err?.message || err);
+      }
+      setSelected("home");
+      setUser({});
+      // Clear token context if present
+      try { setToken && setToken(""); } catch (e) {}
+      navigate("/");
+    })();
   }
+
+  const [token, setToken] = useContext(tokenContext);
 
   return (
     <>
@@ -53,12 +67,15 @@ function Header() {
             <h2>Hi, {user.firstname || "User"}!</h2>
           </div>
           <div className="topright">
-            <Link to={user.userType === "admin" ? "/adminprofile/profile" : "/userprofile"} className="profileBtn" title="View Profile">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M12 14c-4 0-6 2-6 4v3h12v-3c0-2-2-4-6-4z"/>
-              </svg>
-            </Link>
+            {/* Only show profile button to admins; regular users should not see it */}
+            {user?.userType === "admin" && (
+              <Link to="/adminprofile/profile" className="profileBtn" title="View Profile">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M12 14c-4 0-6 2-6 4v3h12v-3c0-2-2-4-6-4z"/>
+                </svg>
+              </Link>
+            )}
             <div className="logout" onClick={handleLogout}>
               Logout
             </div>

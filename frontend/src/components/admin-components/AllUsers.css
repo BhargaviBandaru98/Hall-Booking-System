@@ -72,3 +72,220 @@
 .allusers .tablecontainer::-webkit-scrollbar {
   display: none;
 }
+
+/* User Details Modal Styling */
+.allusers .userDetailModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.allusers .userDetailModal {
+  background: linear-gradient(135deg, rgba(20, 20, 40, 0.98) 0%, rgba(30, 20, 50, 0.98) 100%);
+  border: 2px solid rgba(153, 84, 244, 0.5);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(153, 84, 244, 0.3);
+}
+
+.allusers .userDetailModal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.allusers .userDetailModal::-webkit-scrollbar-track {
+  background: rgba(50, 50, 80, 0.3);
+  border-radius: 10px;
+}
+
+.allusers .userDetailModal::-webkit-scrollbar-thumb {
+  background: rgba(153, 84, 244, 0.5);
+  border-radius: 10px;
+}
+
+.allusers .userDetailModal::-webkit-scrollbar-thumb:hover {
+  background: rgba(153, 84, 244, 0.7);
+}
+
+.allusers .modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(153, 84, 244, 0.3);
+}
+
+.allusers .modalHeader h2 {
+  color: #b277ff;
+  font-size: 26px;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(153, 84, 244, 0.3);
+}
+
+.allusers .closeBtn {
+  background: none;
+  border: none;
+  color: #b277ff;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.allusers .closeBtn:hover {
+  color: #c394ff;
+  text-shadow: 0 0 10px rgba(153, 84, 244, 0.5);
+}
+
+.allusers .userInfoSection h3,
+.allusers .bookingsSection h3 {
+  color: #b277ff;
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-shadow: 0 0 8px rgba(153, 84, 244, 0.2);
+}
+
+.allusers .infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.allusers .infoItem {
+  background: rgba(50, 50, 80, 0.5);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(153, 84, 244, 0.2);
+}
+
+.allusers .infoItem label {
+  color: #9954f4;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.allusers .infoItem p {
+  color: white;
+  margin: 0;
+  word-break: break-word;
+}
+
+.allusers .status-active {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.allusers .status-blocked {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.allusers .bookingsSection {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(153, 84, 244, 0.2);
+}
+
+.allusers .loading {
+  color: #b277ff;
+  text-align: center;
+  padding: 20px;
+}
+
+.allusers .noBookings {
+  color: #999;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+.allusers .bookingsTable {
+  overflow-x: auto;
+}
+
+.allusers .bookingsTable table {
+  width: 100%;
+}
+
+.allusers .bookingsTable th,
+.allusers .bookingsTable td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(153, 84, 244, 0.2);
+  background-color: rgba(50, 50, 80, 0.3);
+  color: white;
+  font-size: 13px;
+}
+
+.allusers .bookingsTable th {
+  background-color: rgba(153, 84, 244, 0.2);
+  color: #b277ff;
+  font-weight: 600;
+}
+
+.allusers .badge-active {
+  background-color: rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.allusers .badge-blocked {
+  background-color: rgba(244, 67, 54, 0.3);
+  color: #f44336;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.allusers .badge-verified {
+  background-color: rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.allusers .badge-pending {
+  background-color: rgba(255, 152, 0, 0.3);
+  color: #ff9800;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.allusers table .row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.allusers table .row:hover {
+  background-color: rgba(153, 84, 244, 0.1);
+}
