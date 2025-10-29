@@ -22,7 +22,7 @@ function Login() {
 
   let [msg, setMsg] = useState("");
   let [user, setUser] = useContext(userContext);
-  let [token, setToken] = useContext(tokenContext); // correctly used tokenContext
+  let [isAuthenticated, setIsAuthenticated] = useContext(tokenContext);
   let navigate = useNavigate();
 
   async function handleFormSubmit(userData) {
@@ -30,15 +30,11 @@ function Login() {
       let res;
       if (userData.userType === "user") {
         res = await axios.post(`${BASE_URL}/user-api/login`, userData, { withCredentials: true });
-        if (res.data.token) {
-          setToken(res.data.token);
-        }
+        setIsAuthenticated(true);
       } else {
         // Admin login code unchanged
         res = await axios.post(`${BASE_URL}/admin-api/login`, userData, { withCredentials: true });
-        if (res.data.token) {
-          setToken(res.data.token);
-        }
+        setIsAuthenticated(true);
       }
 
       // Robust success check: case-insensitive, partial match

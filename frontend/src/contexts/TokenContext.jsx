@@ -4,19 +4,15 @@ import axios from "axios";
 const tokenContext = createContext();
 
 export const TokenContextProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+  // Instead of managing the token directly, we'll just track authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } else {
-      localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
-    }
-  }, [token]);
+    // Configure axios defaults
+    axios.defaults.withCredentials = true; // This ensures cookies are sent with requests
+  }, []);
 
-  return <tokenContext.Provider value={[token, setToken]}>{children}</tokenContext.Provider>;
+  return <tokenContext.Provider value={[isAuthenticated, setIsAuthenticated]}>{children}</tokenContext.Provider>;
 };
 
 export default tokenContext;
