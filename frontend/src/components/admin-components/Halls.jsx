@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import tokenContext from "../../contexts/TokenContext";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+// const BASE_URL='http:localhost:4000';
 
 function Halls() {
   const {
@@ -15,7 +16,7 @@ function Halls() {
     reset,
   } = useForm();
 
-  const [token] = useContext(tokenContext);
+  const [isAuthenticated] = useContext(tokenContext);
   const [halls, setHalls] = useState([]);
   const [allHalls, setAllHalls] = useState([]);
   const [selectedHall, setSelectedHall] = useState(null);
@@ -32,49 +33,52 @@ function Halls() {
   const [adminInfo, setAdminInfo] = useState(null);
 
   async function fetchWithCredentials(url, options = {}) {
-    options.credentials = "include";
+    options.credentials = "include";  // This ensures cookies are sent with the request
     options.headers = options.headers || {};
     if (!options.headers["Content-Type"] && options.body) {
       options.headers["Content-Type"] = "application/json";
     }
-    if (token) {
-      options.headers["Authorization"] = `Bearer ${token}`;
-    }
     try {
       const res = await fetch(url, options);
+      const contentType = res.headers.get("content-type");
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || `Error: ${res.statusText}`);
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || `Error: ${res.statusText}`);
+        } else {
+          const text = await res.text();
+          console.error("Non-JSON response:", text);
+          throw new Error(`Server returned ${res.status} ${res.statusText}`);
+        }
+      }
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Unexpected non-JSON response:", text);
+        throw new Error("Server returned non-JSON response");
       }
       return res.json();
     } catch (err) {
+      console.error("Request failed:", err);
       throw err;
     }
   }
 
   // Fetch admin info and halls on mount
   useEffect(() => {
-    async function getAdminInfoAndHalls() {
+    async function getHalls() {
       try {
-        const adminData = await fetchWithCredentials(`${BASE_URL}/admin-api/admin-info`);
-        setAdminInfo(adminData.admin);
-        
         const hallsData = await fetchWithCredentials(`${BASE_URL}/admin-api/halls`);
-        const allHallsList = hallsData.allHalls || [];
+        console.log("Halls data:", hallsData);
+        const allHallsList = hallsData.halls || []; // Changed from hallsData.allHalls to hallsData.halls
         setAllHalls(allHallsList);
-        
-        // Filter halls based on admin's manages blocks
-        const myHallsList = allHallsList.filter(hall => 
-          adminData.admin.manages && adminData.admin.manages.includes(hall.block)
-        );
-        setHalls(myHallsList);
+        setHalls(allHallsList); // Show all halls by default since we can't filter without admin info
         setErrorMsg("");
       } catch (err) {
         setErrorMsg("Failed to fetch halls.");
-        console.error(err);
+        console.error("Error fetching halls:", err);
       }
     }
-    getAdminInfoAndHalls();
+    getHalls();
   }, []);
 
   // Handle filter toggle

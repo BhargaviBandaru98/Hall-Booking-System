@@ -53,6 +53,7 @@ adminApp.post("/login", expressAsyncHandler(async (req, res) => {
   if (!user) return res.status(401).send({ message: "Invalid email or password" });
 
   const isValid = await bcryptjs.compare(password, user.password);
+  console.log(user.password, password);
   if (!isValid) return res.status(401).send({ message: "Invalid email or password" });
 
   const accessToken = jwt.sign({ email: userEmail }, JWT_SECRET, { expiresIn: "15m" });
