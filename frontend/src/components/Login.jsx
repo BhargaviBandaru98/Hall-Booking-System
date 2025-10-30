@@ -3,9 +3,19 @@ import { useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../contexts/UserContext";
-// Import default tokenContext and named provider
 import tokenContext from "../contexts/TokenContext";
 import axios from "axios";
+import { 
+  LogIn, 
+  Mail, 
+  Lock, 
+  AlertCircle, 
+  CheckCircle,
+  Loader2,
+  User,
+  Shield,
+  Sparkles
+} from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -14,6 +24,7 @@ function Login() {
     register,
     handleSubmit,
     formState: { errors },
+    watch
   } = useForm({
     defaultValues: {
       userType: "user",
@@ -21,66 +32,171 @@ function Login() {
   });
 
   let [msg, setMsg] = useState("");
+  let [isLoading, setIsLoading] = useState(false);
   let [user, setUser] = useContext(userContext);
-  let [token, setToken] = useContext(tokenContext); // correctly used tokenContext
+  let [isAuthenticated, setIsAuthenticated] = useContext(tokenContext);
   let navigate = useNavigate();
 
+  const selectedUserType = watch("userType");
+
   async function handleFormSubmit(userData) {
+    setIsLoading(true);
+    setMsg("");
+    
     try {
       let res;
       if (userData.userType === "user") {
         res = await axios.post(`${BASE_URL}/user-api/login`, userData, { withCredentials: true });
-        if (res.data.token) {
-          setToken(res.data.token);
-        }
+        setIsAuthenticated(true);
       } else {
-        // Admin login code unchanged
         res = await axios.post(`${BASE_URL}/admin-api/login`, userData, { withCredentials: true });
-        if (res.data.token) {
-          setToken(res.data.token);
-        }
+        setIsAuthenticated(true);
       }
 
-      // Robust success check: case-insensitive, partial match
       if (res.data.message && res.data.message.toLowerCase().includes("login successful")) {
         setUser(res.data.user);
-        if (userData.userType === "user") {
-          navigate("/userprofile");
-        } else {
-          navigate("/adminprofile");
-        }
+        setMsg({ type: 'success', text: 'Login successful! Redirecting...' });
+        
+        setTimeout(() => {
+          if (userData.userType === "user") {
+            navigate("/userprofile");
+          } else {
+            navigate("/adminprofile");
+          }
+        }, 1000);
       } else {
-        setMsg(res.data.message || "Login failed");
+        setMsg({ type: 'error', text: res.data.message || "Login failed" });
       }
     } catch (error) {
-      setMsg(error.response?.data?.message || "Login failed");
+      setMsg({ type: 'error', text: error.response?.data?.message || "Login failed" });
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
-    <div className="login">
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <div className="usertype">
-          <div className="radio1 radio">
-            <input type="radio" id="user" value="user" {...register("userType", { required: true })} />
-            <label htmlFor="user">User</label>
+    <div className="login-container">
+      <div className="login">
+        <div className="login-header">
+          <div className="logo-wrapper">
+            <Sparkles size={48} strokeWidth={1.5} className="logo-icon" />
           </div>
-          <div className="radio2 radio">
-            <input type="radio" id="admin" value="admin" {...register("userType", { required: true })} />
-            <label htmlFor="admin">Admin</label>
-          </div>
+          <h1 className="login-title">Welcome Back</h1>
+          <p className="login-subtitle">Sign in to continue</p>
         </div>
-        {errors.userType && <p>*Usertype is required</p>}
-        <label htmlFor="email">Email:</label>
-        <input type="email" id="email" placeholder="Enter your email" {...register("email", { required: true })} />
-        {errors.email && <p>*Email is required</p>}
-        <label htmlFor="password">Password:</label>
-        <input type="password" id="password" placeholder="Enter your password" {...register("password", { required: true })} />
-        {errors.password && <p>*Password is required</p>}
-        <p className="para">{msg}</p>
-        <button type="submit">Submit</button>
-      </form>
+
+        <form className="login-form" onSubmit={handleSubmit(handleFormSubmit)}>
+          <div className="usertype-container">
+            <label className={`usertype-option ${selectedUserType === 'user' ? 'active' : ''}`}>
+              <input 
+                type="radio" 
+                id="user" 
+                value="user" 
+                {...register("userType", { required: true })} 
+              />
+              <div className="usertype-content">
+                <User size={24} />
+                <span>User</span>
+              </div>
+            </label>
+            
+            <label className={`usertype-option ${selectedUserType === 'admin' ? 'active' : ''}`}>
+              <input 
+                type="radio" 
+                id="admin" 
+                value="admin" 
+                {...register("userType", { required: true })} 
+              />
+              <div className="usertype-content">
+                <Shield size={24} />
+                <span>Admin</span>
+              </div>
+            </label>
+          </div>
+          {errors.userType && (
+            <span className="login-error-message">
+              <AlertCircle size={14} />
+              Usertype is required
+            </span>
+          )}
+
+          <div className="login-form-group">
+            <label htmlFor="email">
+              <Mail size={16} />
+              Email
+            </label>
+            <input 
+              type="email" 
+              id="email" 
+              className={errors.email ? 'error' : ''}
+              placeholder="Enter your email" 
+              {...register("email", { required: true })} 
+            />
+            {errors.email && (
+              <span className="login-error-message">
+                <AlertCircle size={14} />
+                Email is required
+              </span>
+            )}
+          </div>
+
+          <div className="login-form-group">
+            <label htmlFor="password">
+              <Lock size={16} />
+              Password
+            </label>
+            <input 
+              type="password" 
+              id="password"
+              className={errors.password ? 'error' : ''} 
+              placeholder="Enter your password" 
+              {...register("password", { required: true })} 
+            />
+            {errors.password && (
+              <span className="login-error-message">
+                <AlertCircle size={14} />
+                Password is required
+              </span>
+            )}
+          </div>
+
+          {msg && (
+            <div className={`login-message ${msg.type}`}>
+              {msg.type === 'success' ? (
+                <CheckCircle size={20} />
+              ) : (
+                <AlertCircle size={20} />
+              )}
+              {typeof msg === 'string' ? msg : msg.text}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            className="login-submit-button"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 size={20} className="spinner" />
+                Signing in...
+              </>
+            ) : (
+              <>
+                <LogIn size={20} />
+                Submit
+              </>
+            )}
+          </button>
+
+          <div className="login-footer">
+            <p>Don't have an account?</p>
+            <a href="/registration" className="register-link">
+              Create Account
+            </a>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,72 +1,243 @@
-.registration{
-    padding-top: 30px;
-    padding-bottom: 30px;
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+}
+
+.registration-container {
+  min-height: 100vh;
+  margin: 8vh auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.registration {
+  width: 100%;
+  max-width: 500px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Header section */
+.header-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.main-title {
+  font-size: 48px;
+  font-weight: 300;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 8px;
+  font-weight: 300;
+}
+
+/* Mode selection */
+.mode-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.mode-button {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  padding: 24px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.button-icon {
+  font-size: 32px;
+  display: block;
+}
+
+.user-mode {
+  color: #667eea;
+}
+
+.admin-mode {
+  color: #764ba2;
+}
+
+.mode-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.mode-button:active {
+  transform: translateY(-2px);
+}
+
+/* Form styles */
+.registration-form {
+  background: rgba(255, 255, 255, 0.98);
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.form-title {
+  font-size: 28px;
+  font-weight: 300;
+  margin: 0 0 32px 0;
+  color: #333;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 2px solid #e1e4e8;
+  border-radius: 12px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input.error,
+.form-group select.error {
+  border-color: #ff6b6b;
+}
+
+.form-group input::placeholder {
+  color: #adb5bd;
+}
+
+/* Select dropdown styling */
+/* .form-group select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+} */
+
+/* Form header with icon */
+.form-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.form-header svg {
+  color: #667eea;
+  position: relative;
+  top: -1rem;
+}
+
+/* Labels with icons */
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.form-group label svg {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+/* Error messages with icons */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #ff6b6b;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.error-message svg {
+  flex-shrink: 0;
+}
+
+/* Message with icons */
+.message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+}
+
+.message svg {
+  flex-shrink: 0;
+}
+
+/* Button icons */
+.submit-button svg,
+.cancel-button svg {
+  flex-shrink: 0;
+}
+
+.submit-button,
+.cancel-button {
+  gap: 8px;
+  margin: auto 10px;
+}
+
+.form-actions{
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    margin-top: 6vh;
+    gap: 20px;
 }
-.registration h1{
-    text-transform: uppercase;
-    color: white; 
-    font-size: 40px; 
-    margin-bottom: 20px;
-    text-shadow: 0 0 50px #9954f49a;
-}
-.registration form{
-    display: flex;
+
+@media (max-width: 600px) {
+  .form-actions{
     flex-direction: column;
-    width: 95%;
-    max-width: 400px;
-    margin: auto;
-    background-color: rgba(47, 47, 51, 0.836);
-    padding: 30px;
-    border-radius: 30px;
-    box-shadow: rgba(202, 202, 202, 0.24) 0px 3px 8px;
-}
-.registration form label{
-    color: white;
-    font-weight: 600;
-    font-size: 16px;
-    margin-bottom: 5px;
-}
-.registration form input{
-    padding: 10px;
-    color: white;
-    margin-bottom: 20px;
-    font-size: 16px;
-    background-color: rgba(128, 128, 128, 0.37);
-    border: 2px solid rgba(128, 128, 128, 0.202);
-    border-radius: 6px;
-}
-.registration form input:focus{
-    border: 2px solid #370d6d90;
-    outline: none;
-}
-.registration form button{
-    width: 100px;
-    padding: 10px;
-    font-size: 16px;
-    margin: auto;
-    color: white;
-    background-color: rgba(128, 128, 128, 0.37);
-    border: 2px solid rgba(128, 128, 128, 0.202);
-    border-radius: 10px;
-    cursor: pointer;
-    outline: none;
-}
-.registration form button:hover{
-    background-color: rgba(89, 89, 89, 0.37);
-    border: 2px solid rgba(128, 128, 128, 0.202);
-    border-radius: 10px;
-    cursor: pointer;
-}
-.registration form p{
-    margin-bottom: 20px;
-    color: rgba(225, 59, 59, 0.993);
-    text-transform: capitalize;
-}
-.registration form .para{
-    margin: 20px 0;
+    gap: 12px;
+    scale: calc(0.8);
+  }
 }

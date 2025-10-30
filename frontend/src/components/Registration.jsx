@@ -2,12 +2,29 @@ import "./Registration.css";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { 
+  User, 
+  Shield, 
+  Check, 
+  X, 
+  AlertCircle, 
+  CheckCircle,
+  Loader2,
+  Phone,
+  Mail,
+  Lock,
+  Building2,
+  Users,
+  UserCheck,
+  Briefcase
+} from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 function Registration() {
   const [msg, setMsg] = useState("");
-  const [mode, setMode] = useState(null); // 'user' or 'admin'
+  const [mode, setMode] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -16,8 +33,13 @@ function Registration() {
     formState: { errors },
   } = useForm();
 
-  // Separate form for admin registration
-  const { register: adminRegister, handleSubmit: handleAdminSubmit, reset: resetAdmin, formState: { errors: adminErrors } } = useForm();
+  const { 
+    register: adminRegister, 
+    handleSubmit: handleAdminSubmit, 
+    reset: resetAdmin, 
+    formState: { errors: adminErrors } 
+  } = useForm();
+  
   const [blocks, setBlocks] = useState([]);
 
   useEffect(() => {
@@ -33,8 +55,8 @@ function Registration() {
   }, [mode]);
 
   async function handleFormSubmit(userData) {
+    setIsLoading(true);
     try {
-      // For user registration only the specified fields are required
       const payload = {
         name: userData.name || `${userData.firstname || ''} ${userData.lastname || ''}`.trim(),
         firstname: userData.firstname,
@@ -49,143 +71,390 @@ function Registration() {
         activeStatus: true,
       };
 
-      // Ensure required fields per spec
       const required = ["club", "phone", "role", "email", "password"];
       for (const r of required) {
         if (!payload[r]) throw new Error(`${r} is required`);
       }
 
       const res = await axios.post(`${BASE_URL}/user-api/user`, payload);
-      alert(res.data.message || "Registration submitted");
-      setMsg(res.data.message);
+      setMsg({ type: 'success', text: res.data.message || "Registration successful!" });
       reset();
-      setMode(null);
+      setTimeout(() => setMode(null), 2000);
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.message || "Failed to register. Please try again.";
-      alert(errorMsg);
-      setMsg(errorMsg);
+      setMsg({ type: 'error', text: errorMsg });
+    } finally {
+      setIsLoading(false);
     }
   }
   
   return (
-    <div className="registration">
-      <h1>Register</h1>
+    <div className="registration-container">
+      <div className="registration">
+        <div className="header-section">
+          <h1 className="main-title">Welcome</h1>
+          <p className="subtitle">Join our community</p>
+        </div>
 
-      <div style={{ marginBottom: 12 }}>
-        <button type="button" onClick={() => setMode("user")}>Register as User</button>
-        <button type="button" onClick={() => setMode("admin")} style={{ marginLeft: 8 }}>Register as Admin</button>
-      </div>
-
-      {mode === null && <p>Please choose whether you are registering as a User or Admin.</p>}
-
-      {mode === "user" && (
-        <form action="" onSubmit={handleSubmit(handleFormSubmit)}>
-          <label htmlFor="role">Role:</label>
-          <select id="role" {...register("role", { required: true })}>
-            <option value="">Select role</option>
-            <option value="head">head</option>
-            <option value="coordinator">coordinator</option>
-          </select>
-          {errors.role?.type === "required" && <p>*Role is required</p>}
-
-          <label htmlFor="club">Club:</label>
-          <input
-            type="text"
-            id="club"
-            placeholder="Enter your club name"
-            {...register("club", { required: true })}
-          />
-          {errors.club?.type === "required" && <p>*Club is required</p>}
-
-          <label htmlFor="phone">Phone Number:</label>
-          <input type="tel" id="phone" {...register("phone", { required: true })} />
-          {errors.phone && <p>*Phone is required</p>}
-
-          <label htmlFor="email">Official Club Email:</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="Enter official club email"
-            {...register("email", { required: true })}
-          />
-          {errors.email?.type === "required" && <p>*Email is required</p>}
-
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Enter your password"
-            {...register("password", { required: true })}
-          />
-          {errors.password?.type === "required" && <p>*Password is required</p>}
-
-          <p className="para">{msg}</p>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <button type="submit">Submit</button>
-            <button type="button" onClick={() => setMode(null)} style={{ marginLeft: 8 }}>Cancel</button>
+        {mode === null && (
+          <div className="mode-selection">
+            <button 
+              type="button" 
+              className="mode-button user-mode"
+              onClick={() => setMode("user")}
+            >
+              <User size={32} strokeWidth={1.5} />
+              <span>Register as User</span>
+            </button>
+            <button 
+              type="button" 
+              className="mode-button admin-mode"
+              onClick={() => setMode("admin")}
+            >
+              <Shield size={32} strokeWidth={1.5} />
+              <span>Register as Admin</span>
+            </button>
           </div>
-          
-        </form>
-      )}
-      {mode === "admin" && (
-        <form onSubmit={handleAdminSubmit(async (data) => {
-          try {
-            const payload = {
-              name: data.name,
-              email: (data.email || "").toLowerCase(),
-              phone: data.phone,
-              altPhone: data.altPhone || null,
-              manages: data.manages || [],
-              password: data.password,
-            };
-            if (!payload.name || !payload.email || !payload.phone || !payload.password) {
-              throw new Error('name, email, phone and password are required');
-            }
-            const res = await axios.post(`${BASE_URL}/admin-api/create-admin`, payload);
-            alert(res.data?.message || 'Admin registered');
-            resetAdmin();
-            setMode(null);
-          } catch (err) {
-            const errorMsg = err.response?.data?.message || err.message || 'Failed to create admin';
-            alert(errorMsg);
-          }
-        })}>
-          <label>Name:</label>
-          <input type="text" {...adminRegister("name", { required: true })} />
-          {adminErrors.name && <p>*Name required</p>}
+        )}
 
-          <label>Official Email:</label>
-          <input type="email" {...adminRegister("email", { required: true })} />
-          {adminErrors.email && <p>*Email required</p>}
-
-          <label>Password:</label>
-          <input type="password" {...adminRegister("password", { required: true, minLength: 6 })} />
-          {adminErrors.password && <p>*Password required (min 6 chars)</p>}
-
-          <label>Phone Number:</label>
-          <input type="tel" {...adminRegister("phone", { required: true })} />
-          {adminErrors.phone && <p>*Phone required</p>}
-
-          <label>Alternate Phone (optional):</label>
-          <input type="tel" {...adminRegister("altPhone")} />
-
-          <label>Blocks / Halls to manage</label>
-          <div style={{ marginBottom: 8 }}>
-            {blocks.length === 0 && <small>No blocks available</small>}
-            {blocks.map((b) => (
-              <label key={b} style={{ display: 'block' }}>
-                <input type="checkbox" value={b} {...adminRegister("manages")} /> {b}
+        {mode === "user" && (
+          <form className="registration-form" onSubmit={handleSubmit(handleFormSubmit)}>
+            <div className="form-header">
+              <User size={36} />
+              <h2 className="form-title">User Registration</h2>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="role">
+                <Briefcase size={16} />
+                Role
               </label>
-            ))}
-          </div>
+              <select 
+                id="role" 
+                className={errors.role ? 'error' : ''}
+                {...register("role", { required: true })}
+              >
+                <option value="">Select your role</option>
+                <option value="head">Head</option>
+                <option value="coordinator">Coordinator</option>
+              </select>
+              {errors.role && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Role is required
+                </span>
+              )}
+            </div>
 
-          <p className="para">{msg}</p>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <button type="submit">Create Admin</button>
-            <button type="button" onClick={() => setMode(null)} style={{ marginLeft: 4 }}>Cancel</button>
-          </div>
-        </form>
-      )}
+            <div className="form-group">
+              <label htmlFor="club">
+                <Users size={16} />
+                Club Name
+              </label>
+              <input
+                type="text"
+                id="club"
+                className={errors.club ? 'error' : ''}
+                placeholder="Enter your club name"
+                {...register("club", { required: true })}
+              />
+              {errors.club && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Club name is required
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phone">
+                <Phone size={16} />
+                Phone Number
+              </label>
+              <input 
+                type="tel" 
+                id="phone"
+                className={errors.phone ? 'error' : ''}
+                placeholder="+91 "
+                {...register("phone", { required: true })} 
+              />
+              {errors.phone && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Phone number is required
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">
+                <Mail size={16} />
+                Official Club Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                className={errors.email ? 'error' : ''}
+                placeholder="club@example.com"
+                {...register("email", { required: true })}
+              />
+              {errors.email && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Email is required
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">
+                <Lock size={16} />
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                className={errors.password ? 'error' : ''}
+                placeholder="••••••••"
+                {...register("password", { required: true })}
+              />
+              {errors.password && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Password is required
+                </span>
+              )}
+            </div>
+
+            {msg && (
+              <div className={`message ${msg.type}`}>
+                {msg.type === 'success' ? (
+                  <CheckCircle size={20} />
+                ) : (
+                  <AlertCircle size={20} />
+                )}
+                {msg.text}
+              </div>
+            )}
+
+            <div className="form-actions">
+              <button 
+                type="submit" 
+                className="submit-button"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={20} className="spinner" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <UserCheck size={20} />
+                    Register
+                  </>
+                )}
+              </button>
+              <button 
+                type="button" 
+                onClick={() => { setMode(null); setMsg(""); }} 
+                className="cancel-button"
+              >
+                <X size={20} />
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+
+        {mode === "admin" && (
+          <form className="registration-form" onSubmit={handleAdminSubmit(async (data) => {
+            setIsLoading(true);
+            try {
+              const payload = {
+                name: data.name,
+                email: (data.email || "").toLowerCase(),
+                phone: data.phone,
+                altPhone: data.altPhone || null,
+                manages: data.manages || [],
+                password: data.password,
+              };
+              
+              if (!payload.name || !payload.email || !payload.phone || !payload.password) {
+                throw new Error('All fields except alternate phone are required');
+              }
+              
+              const res = await axios.post(`${BASE_URL}/admin-api/create-admin`, payload);
+              setMsg({ type: 'success', text: res.data?.message || 'Admin registered successfully!' });
+              resetAdmin();
+              setTimeout(() => setMode(null), 2000);
+            } catch (err) {
+              const errorMsg = err.response?.data?.message || err.message || 'Failed to create admin';
+              setMsg({ type: 'error', text: errorMsg });
+            } finally {
+              setIsLoading(false);
+            }
+          })}>
+            <div className="form-header">
+              <Shield size={36} />
+              <h2 className="form-title">Admin Registration</h2>
+            </div>
+
+            <div className="form-group">
+              <label>
+                <User size={16} />
+                Full Name
+              </label>
+              <input 
+                type="text"
+                className={adminErrors.name ? 'error' : ''}
+                placeholder="John Doe"
+                {...adminRegister("name", { required: true })} 
+              />
+              {adminErrors.name && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Name is required
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>
+                <Mail size={16} />
+                Official Email
+              </label>
+              <input 
+                type="email"
+                className={adminErrors.email ? 'error' : ''}
+                placeholder="admin@example.com"
+                {...adminRegister("email", { required: true })} 
+              />
+              {adminErrors.email && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Email is required
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>
+                <Lock size={16} />
+                Password
+              </label>
+              <input 
+                type="password"
+                className={adminErrors.password ? 'error' : ''}
+                placeholder="••••••••"
+                {...adminRegister("password", { required: true, minLength: 6 })} 
+              />
+              {adminErrors.password && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Password required (min 6 characters)
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>
+                <Phone size={16} />
+                Phone Number
+              </label>
+              <input 
+                type="tel"
+                className={adminErrors.phone ? 'error' : ''}
+                placeholder="+1 (555) 123-4567"
+                {...adminRegister("phone", { required: true })} 
+              />
+              {adminErrors.phone && (
+                <span className="error-message">
+                  <AlertCircle size={14} />
+                  Phone number is required
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>
+                <Phone size={16} />
+                Alternate Phone <span className="optional">(optional)</span>
+              </label>
+              <input 
+                type="tel"
+                placeholder="+1 (555) 987-6543"
+                {...adminRegister("altPhone")} 
+              />
+            </div>
+
+            <div className="form-group">
+              <label>
+                <Building2 size={16} />
+                Manage Blocks/Halls
+              </label>
+              <div className="checkbox-group">
+                {blocks.length === 0 ? (
+                  <p className="no-blocks">No blocks available</p>
+                ) : (
+                  blocks.map((b) => (
+                    <label key={b} className="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        value={b} 
+                        {...adminRegister("manages")} 
+                      />
+                      <span className="checkbox-custom">
+                        <Check size={14} strokeWidth={3} />
+                      </span>
+                      {b}
+                    </label>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {msg && (
+              <div className={`message ${msg.type}`}>
+                {msg.type === 'success' ? (
+                  <CheckCircle size={20} />
+                ) : (
+                  <AlertCircle size={20} />
+                )}
+                {msg.text}
+              </div>
+            )}
+
+            <div className="form-actions">
+              <button 
+                type="submit" 
+                className="submit-button"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={20} className="spinner" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Shield size={20} />
+                    Create Admin
+                  </>
+                )}
+              </button>
+              <button 
+                type="button" 
+                onClick={() => { setMode(null); setMsg(""); }} 
+                className="cancel-button"
+              >
+                <X size={20} />
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
