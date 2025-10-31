@@ -49,10 +49,10 @@ function AdminHallCard(props) {
 
 <img src={props.hall.image && props.hall.image.trim() !== "" ? props.hall.image : defaultImg} alt="hall"/>
         <div className="details1">
-          <p>{str.length > 27 ? `${str.substring(0, 27)}...` : str}</p>
+          <p className="text-sm">{str.length > 27 ? `${str.substring(0, 27)}...` : str}</p>
         </div>
         <div className="details2">
-          <p>{props.hall.description.substring(0, 68)}...</p>
+          <p className="text-xs">{props.hall.description.substring(0, 68)}...</p>
         </div>
         <p className="viewmore">View More</p>
       </div>

@@ -97,7 +97,7 @@ function AdminProfileSettings() {
       };
 
       const res = await axios.put(
-        `${BASE_URL}/admin-api `,
+        `${BASE_URL}/admin-api/update-admin `,
         updateData,
         config
       );

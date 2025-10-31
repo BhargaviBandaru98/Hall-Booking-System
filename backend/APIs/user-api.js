@@ -238,7 +238,9 @@ userApp.get(
     // Remove duplicates and sort (optional)
     const uniqueBlocks = Array.from(new Set(blocks));
     // console.log('Fetched blocks (fallback):', uniqueBlocks);
-    return res.json({ success: true, blocks: uniqueBlocks });
+    return res.json({ success: true, blocks: [uniqueBlocks] });
+    // return res.json({ success: true, blocks: ["A-Block","B-Block","C-Block"] }); //Hard-coded the blocks
+
   })
 );
 

@@ -20,7 +20,7 @@ const defaultOrigins = [
 ];
 
 // Always allow common local dev origin
-const localDevOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+const localDevOrigins = ['http://localhost:3229', 'http://127.0.0.1:3229'];
 
 // FRONTEND_URL can be a comma-separated list of origins
 let envOrigins = [];
@@ -101,23 +101,210 @@ app.use((err, req, res, next) => {
   res.status(500).send({ errMessage: err.message });
 });
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 6229;
+
+// Schema definitions for collections
+const schemas = {
+  admin: {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["email", "password", "name", "phone", "userType"],
+        properties: {
+          email: {
+            bsonType: "string",
+            pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          },
+          password: { bsonType: "string" },
+          name: { bsonType: "string" },
+          phone: { bsonType: "string", pattern: "^[0-9]{10}$" },
+          altPhone: { bsonType: ["string", "null"], pattern: "^[0-9]{10}$" },
+          manages: { 
+            bsonType: "array",
+            items: { bsonType: "string" }
+          },
+          userType: { enum: ["admin"] },
+          refreshToken: { bsonType: ["string", "null"] },
+          createdAt: { bsonType: "string" }
+        }
+      }
+    }
+  },
+  users: {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["email", "password", "firstname", "lastname", "phone", "userType"],
+        properties: {
+          email: {
+            bsonType: "string",
+            pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          },
+          password: { bsonType: "string" },
+          firstname: { bsonType: "string" },
+          lastname: { bsonType: "string" },
+          phone: { bsonType: "string", pattern: "^[0-9]{10}$" },
+          userType: { enum: ["user"] },
+          verifyStatus: { bsonType: "bool" },
+          activeStatus: { bsonType: "bool" },
+          refreshToken: { bsonType: ["string", "null"] }
+        }
+      }
+    }
+  },
+  halls: {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["name", "capacity", "location", "block"],
+        properties: {
+          name: { bsonType: "string" },
+          capacity: { bsonType: "int" },
+          location: { bsonType: "string" },
+          block: { bsonType: "string" },
+          description: { bsonType: "string" },
+          blockStatus: { bsonType: "bool" },
+          laptopCharging: { bsonType: "bool" },
+          projectorAvailable: { bsonType: "bool" },
+          projectorCount: { bsonType: "int" },
+          image: { bsonType: ["string", "null"] }
+        }
+      }
+    }
+  },
+  blocks: {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["_id", "blocks"],
+        properties: {
+          _id: { bsonType: "string" },
+          blocks: {
+            bsonType: "array",
+            items: { bsonType: "string" }
+          }
+        }
+      }
+    }
+  },
+  bookings: {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["bookingID", "hallname", "bookingEmail", "date", "slot", "eventName"],
+        properties: {
+          bookingID: { bsonType: "int" },
+          hallname: { bsonType: "string" },
+          bookingEmail: { bsonType: "string" },
+          date: { bsonType: "string" },
+          slot: { bsonType: "string" },
+          eventName: { bsonType: "string" },
+          eventDescription: { bsonType: "string" },
+          verifyStatus: { bsonType: "bool" },
+          rejectStatus: { bsonType: "bool" },
+          activeStatus: { bsonType: "bool" },
+          dateOfBooking: { bsonType: "string" },
+          formattedDate: { bsonType: "string" },
+          rejectionNote: { bsonType: ["string", "null"] },
+          rejectionNoteDate: { bsonType: ["string", "null"] },
+          acceptanceNote: { bsonType: ["string", "null"] },
+          acceptanceNoteDate: { bsonType: ["string", "null"] }
+        }
+      }
+    }
+  },
+  announcements: {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["title", "message", "validity", "createdAt"],
+        properties: {
+          title: { bsonType: "string" },
+          message: { bsonType: "string" },
+          validity: { bsonType: "int" },
+          createdAt: {
+            bsonType: "object",
+            required: ["date", "time"],
+            properties: {
+              date: { bsonType: "string" },
+              time: { bsonType: "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+// Default blocks to initialize
+const defaultBlocks = ["A-Block", "B-Block", "C-Block", "D-Block", "PG-Block", "E-Block", "PEB-Block", "MBA-Block"];
 
 // Connect to MongoDB and start server only after successful connection
 mongoClient.connect(db_url)
-  .then(client => {
+  .then(async (client) => {
     const dbObj = client.db("hallbooking");
+    console.log('Connected to MongoDB, checking collections...');
+
+    // Initialize collections only if they don't exist
+    for (const [collName, schema] of Object.entries(schemas)) {
+      try {
+        // Check if collection exists
+        const collections = await dbObj.listCollections({ name: collName }).toArray();
+        
+        if (collections.length === 0) {
+          console.log(`Collection '${collName}' not found, creating with schema...`);
+          await dbObj.createCollection(collName, { validator: schema.validator });
+          
+          // Create indexes for new collection
+          const collection = dbObj.collection(collName);
+          switch (collName) {
+            case 'admin':
+            case 'users':
+              await collection.createIndex({ email: 1 }, { unique: true });
+              break;
+            case 'halls':
+              await collection.createIndex({ name: 1 }, { unique: true });
+              await collection.createIndex({ block: 1 });
+              break;
+            case 'bookings':
+              await collection.createIndex({ bookingID: 1 }, { unique: true });
+              await collection.createIndex({ hallname: 1 });
+              await collection.createIndex({ bookingEmail: 1 });
+              await collection.createIndex({ date: 1, slot: 1 });
+              break;
+          }
+
+          // Initialize blocks collection with default blocks if it's new
+          if (collName === 'blocks') {
+            await collection.updateOne(
+              { _id: 'default_blocks' },
+              { $set: { blocks: defaultBlocks } },
+              { upsert: true }
+            );
+            console.log('Initialized new blocks collection with default blocks');
+          }
+          
+          console.log(`Successfully created collection: ${collName}`);
+        } else {
+          console.log(`Collection '${collName}' already exists, skipping initialization`);
+        }
+      } catch (err) {
+        console.error(`Error checking/creating collection ${collName}:`, err);
+      }
+    }
+
+    // Set collections in app
     app.set("adminCollection", dbObj.collection("admin"));
     app.set("usersCollection", dbObj.collection("users"));
     app.set("hallsCollection", dbObj.collection("halls"));
-  app.set("blocksCollection", dbObj.collection("blocks"));
+    app.set("blocksCollection", dbObj.collection("blocks"));
     app.set("bookingsCollection", dbObj.collection("bookings"));
     app.set("announcementCollections", dbObj.collection("announcements"));
-    console.log("MongoDB connected successfully");
+    
+    console.log("All collections initialized successfully");
 
+    // Start server and websocket
     server.listen(port, () => console.log(`HTTP server is running on port ${port}`));
-
-    // Start websocket after collections are ready
     require("./websocket")(server, app);
   })
   .catch(err => {

@@ -91,6 +91,7 @@ async function blockUser(userObj) {
               <th>Email</th>
               <th>Role</th>
               <th>Block</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -104,6 +105,11 @@ async function blockUser(userObj) {
                     <div className="block" onClick={() => blockUser(user)}>
                       🚫︎
                     </div>
+                  </td>
+                  <td>
+                    <span className={user.activeStatus === false ? "status-blocked" : "status-active"}>
+                      {user.activeStatus === false ? "Blocked" : "Active"}
+                    </span>
                   </td>
                 </tr>
               ))

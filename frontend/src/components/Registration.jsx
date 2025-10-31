@@ -149,13 +149,13 @@ function Registration() {
             <div className="form-group">
               <label htmlFor="club">
                 <Users size={16} />
-                Club Name
+                Club/Chapter/Dept Name
               </label>
               <input
                 type="text"
                 id="club"
                 className={errors.club ? 'error' : ''}
-                placeholder="Enter your club name"
+                placeholder="Enter your Club/Chapter/Dept name"
                 {...register("club", { required: true })}
               />
               {errors.club && (

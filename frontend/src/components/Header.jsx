@@ -64,7 +64,7 @@ function Header() {
         <div className="header2">
           <div className="websiteName">VenueVista</div>
           <div className="user">
-            <h2>Hi, {user.firstname || "User"}!</h2>
+            <h2>Hi, {user.name || "User"}!</h2>
           </div>
           <div className="topright">
             {/* Only show profile button to admins; regular users should not see it */}

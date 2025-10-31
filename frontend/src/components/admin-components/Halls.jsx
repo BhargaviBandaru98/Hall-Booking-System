@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import tokenContext from "../../contexts/TokenContext";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-// const BASE_URL='http:localhost:4000';
+// const BASE_URL='http:localhost:6229';
 
 function Halls() {
   const {
@@ -19,6 +19,7 @@ function Halls() {
   const [isAuthenticated] = useContext(tokenContext);
   const [halls, setHalls] = useState([]);
   const [allHalls, setAllHalls] = useState([]);
+  const [blocks, setBlocks] = useState([]);
   const [selectedHall, setSelectedHall] = useState(null);
   const [addHall, setAddHall] = useState(false);
   const [msg, setMsg] = useState("");
@@ -69,13 +70,45 @@ function Halls() {
       try {
         const hallsData = await fetchWithCredentials(`${BASE_URL}/admin-api/halls`);
         console.log("Halls data:", hallsData);
-        const allHallsList = hallsData.halls || []; // Changed from hallsData.allHalls to hallsData.halls
+        if (!hallsData || !Array.isArray(hallsData.halls)) {
+          console.error("Invalid halls data format:", hallsData);
+          setErrorMsg("Invalid data received from server");
+          return;
+        }
+        const allHallsList = hallsData.halls;
         setAllHalls(allHallsList);
-        setHalls(allHallsList); // Show all halls by default since we can't filter without admin info
+        setHalls(allHallsList);
         setErrorMsg("");
+        
+        // Get unique blocks from halls data
+        const blocksData = await fetch(`http://localhost:6229/user-api/blocks`);
+        const jsonBlockData = await blocksData.json();
+        console.log("Blocks data:", await jsonBlockData.blocks);
+        const uniqueBlocks = Array.from(new Set(await jsonBlockData.blocks));
+        setBlocks(uniqueBlocks);
+        
+        // Fetch admin info
+        try {
+          const adminInfoRes = await fetchWithCredentials(`${BASE_URL}/admin-api/admin-info`);
+          console.log("Admin info:", adminInfoRes);
+          if (adminInfoRes && adminInfoRes.admin) {
+            setAdminInfo(adminInfoRes.admin);
+            // Filter halls based on admin's managed blocks
+            if (adminInfoRes.admin.manages && adminInfoRes.admin.manages.length > 0) {
+              const myHallsList = allHallsList.filter(hall => 
+                adminInfoRes.admin.manages.includes(hall.block || hall.location?.split(",")[0])
+              );
+              setHalls(myHallsList); // Show only managed halls by default
+              setFilterType("myHalls");
+            }
+          }
+        } catch (adminErr) {
+          console.error("Error fetching admin info:", adminErr);
+          // Don't set error message here as halls are still loaded
+        }
       } catch (err) {
-        setErrorMsg("Failed to fetch halls.");
         console.error("Error fetching halls:", err);
+        setErrorMsg("Failed to fetch halls: " + (err.message || "Unknown error"));
       }
     }
     getHalls();
@@ -85,12 +118,18 @@ function Halls() {
   const handleFilterChange = (type) => {
     setFilterType(type);
     if (type === "myHalls") {
-      const myHallsList = allHalls.filter(hall => 
-        adminInfo && adminInfo.manages && adminInfo.manages.includes(hall.block)
-      );
+      const myHallsList = allHalls.filter(hall => {
+        const hallBlock = hall.block || hall.location?.split(",")[0];
+        return adminInfo && 
+               adminInfo.manages && 
+               hallBlock && 
+               adminInfo.manages.includes(hallBlock);
+      });
       setHalls(myHallsList);
+      console.log("Filtered halls:", myHallsList);
     } else {
       setHalls(allHalls);
+      console.log("Showing all halls:", allHalls);
     }
   }
 
@@ -298,9 +337,17 @@ function Halls() {
                 <label htmlFor="block">Block:</label>
                 <select id="block" {...register("block", { required: true })}>
                   <option value="">Select Block</option>
-                  {adminInfo && adminInfo.manages && adminInfo.manages.map((block) => (
+                  {blocks && blocks.map((block) => (
                     <option key={block} value={block}>{block}</option>
                   ))}
+                  {/* ensure selected hall's block is present */}
+                  {selectedHall && (() => {
+                    const sel = (selectedHall.location || "").split(',')[0] || selectedHall.block || "";
+                    if (sel && !blocks.includes(sel)) {
+                      return <option key={"sel-" + sel} value={sel}>{sel}</option>;
+                    }
+                    return null;
+                  })()}
                 </select>
 
                 <label htmlFor="floor">Floor:</label>
@@ -412,7 +459,7 @@ function Halls() {
                 <label htmlFor="block">Block:</label>
                 <select id="block" {...register("block", { required: true })}>
                   <option value="">Select Block</option>
-                  {adminInfo && adminInfo.manages && adminInfo.manages.map((block) => (
+                  {blocks && blocks.map((block) => (
                     <option key={block} value={block}>{block}</option>
                   ))}
                 </select>

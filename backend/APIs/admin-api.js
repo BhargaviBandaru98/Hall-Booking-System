@@ -234,9 +234,29 @@ const formatTime = (date) => {
     return `${hours}:${minutes}:${seconds}`;
 };
 adminApp.get("/halls", expressAsyncHandler(async (req, res) => {
-  const hallsCollection = req.app.get("hallsCollection");
-  const halls = await hallsCollection.find().toArray();
-  res.send({ message: "received all halls", halls, allHalls: halls });
+  try {
+    const hallsCollection = req.app.get("hallsCollection");
+    if (!hallsCollection) {
+      console.error("Halls collection not found");
+      return res.status(500).send({ message: "Database configuration error" });
+    }
+
+    const halls = await hallsCollection.find().toArray();
+    console.log("Fetched halls:", halls ? halls.length : 0);
+    
+    if (!halls) {
+      console.error("No halls data returned from database");
+      return res.status(500).send({ message: "Database query error" });
+    }
+
+    res.send({ message: "received all halls", halls, allHalls: halls });
+  } catch (error) {
+    console.error("Error in /halls endpoint:", error);
+    res.status(500).send({ 
+      message: "Internal server error while fetching halls",
+      error: error.message 
+    });
+  }
 }));
 
 adminApp.get("/admin-info", verifyToken, expressAsyncHandler(async (req, res) => {
@@ -280,6 +300,7 @@ adminApp.put(
       bodyPreview: req.body && Object.keys(req.body).slice(0,5)
     });
     const adminCollection = req.app.get("adminCollection");
+    console.log(req.user.email);
     const adminEmail = req.user?.email;
 
     if (!adminEmail) {
@@ -307,17 +328,19 @@ adminApp.put(
       altPhone: altPhone || null
     };
 
+    // First check if admin exists
+    const adminExists = await adminCollection.findOne({ email: adminEmail });
+    if (!adminExists) {
+      return res.status(404).send({ message: "Admin not found" });
+    }
+
     const result = await adminCollection.findOneAndUpdate(
       { email: adminEmail },
       { $set: updateData },
       { returnDocument: "after" }
     );
 
-    if (!result.value) {
-      return res.status(404).send({ message: "Admin not found" });
-    }
-
-    const updatedAdmin = result.value;
+    const updatedAdmin = result;
 
     res.send({
       message: "Admin profile updated successfully",
@@ -530,51 +553,43 @@ adminApp.get(
   })
 );
 
-adminApp.put(
-  "/verify-user/:email",
-  verifyToken,
-  expressAsyncHandler(async (req, res) => {
-    let usersCollection = req.app.get("usersCollection");
-    let email = req.params.email;
+adminApp.put("/verify-user/:email", expressAsyncHandler(async (req, res) => {
+  try {
+    const usersCollection = req.app.get("usersCollection");
+    const email = req.params.email;
 
-    let dbuser = await usersCollection.findOne({ email: email });
-    if (dbuser == null) {
-      return res.send({ message: "User doesn't exist" });
+    if (!email) return res.status(400).send({ message: "Email parameter required" });
+
+    const user = await usersCollection.findOne({ email });
+    if (!user) return res.status(404).send({ message: "User not found" });
+
+    if (user.verifyStatus === true) {
+      return res.status(200).send({ message: "User is already verified" });
     }
 
-    if (dbuser.activeStatus == false) {
-      return res.send({ message: "User has been blocked and can't be verified" });
-    }
+    // Ensure all required fields exist and are valid
+    const updateData = {
+      verifyStatus: true,
+      firstname: user.firstname || "FirstName",
+      lastname: user.lastname || "LastName",
+      phone: user.phone?.match(/^\d{10}$/) ? user.phone : "0000000000",
+      email: user.email,
+      password: user.password,
+      userType: user.userType
+    };
 
-    if (dbuser.verifyStatus == false) {
-      await usersCollection.updateOne({ email: email }, { $set: { verifyStatus: true } });
+    await usersCollection.updateOne(
+      { email },
+      { $set: updateData }
+    );
 
-      const subject = "Account Confirmation Message";
-      const htmlContent = `
-        <div style="max-width:600px; margin:auto; background:#fff; padding:20px; border:1px solid #ddd;
-          border-radius:8px; font-family:Arial, sans-serif; color:#333; line-height:1.6;">
-          <h2 style="color:#007bff;">Congratulations!</h2>
-          <p>Dear ${dbuser.firstname || "User"},</p>
-          <p>Your account has been successfully <strong>approved and verified</strong> by the VNR Campus Halls Admin team.</p>
-          <p>You now have full access to the hall booking platform.</p>
-          <p>If you have any questions, feel free to contact support.</p>
-          <br/>
-          <p>Regards,<br/><strong>VNR Campus Hall Bookings</strong></p>
-        </div>
-      `;
+    return res.status(200).send({ message: "User verified successfully" });
 
-      try {
-        await sendEmaill(email, subject, htmlContent);
-      } catch (error) {
-        console.error("Error sending verification email:", error);
-      }
-
-      res.send({ message: "User has been verified and notified by email" });
-    } else {
-      res.send({ message: "User has already been verified" });
-    }
-  })
-);
+  } catch (error) {
+    console.error("Error in verify-user:", error);
+    return res.status(500).send({ message: "Internal server error", error: error.message });
+  }
+}));
 
 adminApp.put(
   "/block-user/:email",

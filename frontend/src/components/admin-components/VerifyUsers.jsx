@@ -71,7 +71,7 @@ function VerifyUsers() {
               <th>Lastname</th>
               <th>Club</th>
               <th>Role</th>
-              <th>Verify</th>
+              <th>Approve</th>
               <th>Reject</th>
             </tr>
           </thead>
