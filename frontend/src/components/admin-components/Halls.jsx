@@ -81,7 +81,7 @@ function Halls() {
         setErrorMsg("");
         
         // Get unique blocks from halls data
-        const blocksData = await fetch(`http://localhost:6229/user-api/blocks`);
+        const blocksData = await fetch(`${BASE_URL}/user-api/blocks`);
         const jsonBlockData = await blocksData.json();
         console.log("Blocks data:", await jsonBlockData.blocks);
         const uniqueBlocks = Array.from(new Set(await jsonBlockData.blocks));
